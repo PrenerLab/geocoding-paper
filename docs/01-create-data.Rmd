@@ -16,15 +16,16 @@ This notebook requires a number of packages to working with data and wrangling i
 ```{r load-packages}
 # tidystl packages
 library(compstatr)
-
+library(gateway)
+library(postmastr)
 
 # tidyverse packages
 library(dplyr)
-
-# spatial packages
-
+library(stringr)
+library(readr)
 
 # other packages
+library(here)
 library(testthat)
 ```
 
@@ -418,7 +419,7 @@ Next, we'll create a single table before we remove individual years. We also sub
 
 ```{r collapse-all}
 bind_rows(crime2008, crime2009, crime2010, crime2011, crime2012, crime2013, crime2014, crime2015, crime2016, crime2017, crime2018) %>%
-  select(cs_year, date_occur, crime, description, ileads_address, ileads_street, x_coord, y_coord) -> allCrimes
+  select(cs_year, date_occur, crime, description, ileads_address, ileads_street) -> allCrimes
 ```
 
 ### Clean-up Enviornment
@@ -433,4 +434,66 @@ Now that we have a slimmed down data set, we'll subset it by identifying only ho
 
 ```{r subset-homicides}
 allHomicides <- cs_filter_crime(allCrimes, var = crime, crime = "murder")
+
+# unit set
+expect_equal(nrow(allHomicides), 1822)
+```
+
+### Normalize Address Data
+We'll therefore remove the coordinate data and start from scratch, showcasing the `tidystl` approach to open source geocoding. Then, we need to create a single address string. Some intersections are preceded by a 0 for the house number, and we'll want to remove that as well:
+
+```{r create-address-string}
+allHomicides %>%
+  mutate(address = str_c(ileads_address, ileads_street, sep = " ")) %>%
+  mutate(address = ifelse(str_detect(string = address, pattern = "^[0\\b]") == TRUE,
+                          str_replace(string = address, pattern = "^[0\\b]", replacement = ""),
+                          address)) %>%
+  mutate(address = str_trim(address)) -> allHomicides
+```
+
+Once we have a single address string with the 0's removed, we can move on to normalizing them. First, we'll check out the types of addresses that the `postmastr` package finds on its initial pass with `pm_identify()`:
+
+```{r identify-addresses}
+allHomicides <- pm_identify(allHomicides, var = address)
+pm_evaluate(allHomicides)
+```
+
+We're all over the map here (pun intended) - we have mostly short addresses, some intersections, and then a mix of poorly formatted addresses that can't be adequately matched. We'll clean up the unknown, partial, and full intersections so that they are more consistenty formatted:
+
+```{r re-identify-addresses}
+# clean-up addresses manually
+allHomicides %>%
+  mutate(address = ifelse(pm.id == 226, "KENNEDY FOREST", address)) %>%
+  mutate(address = ifelse(pm.id == 354, "NORTH 1ST ST AT MULLANPHY ST", address)) %>%
+  mutate(address = ifelse(pm.id == 355, "NORTH 1ST ST AT MULLANPHY ST", address)) %>%
+  mutate(address = ifelse(pm.id == 568, "O'FALLON PARK", address)) %>%
+  mutate(address = ifelse(pm.id == 803, NA, address)) %>%
+  mutate(address = ifelse(pm.id == 929, NA, address)) %>%
+  mutate(address = ifelse(pm.id == 961, "O'FALLON PARK", address)) %>%
+  mutate(address = ifelse(pm.id == 962, "O'FALLON PARK", address)) %>%
+  mutate(address = ifelse(pm.id == 1268, NA, address)) -> allHomicides
+
+# re-identify
+allHomicides <- pm_identify(allHomicides, var = address)
+
+# evaluate again
+pm_evaluate(allHomicides)
+```
+
+With our data prepped, we can normalize them. The `gateway` package has dictionaries for the key short address components in St. Louis - these can be used out of the box to improve the parser's behavior.
+
+```{r normalize-addresses}
+allHomicides <- pm_parse(allHomicides, input = "short", address = address, 
+                         output = "short", new_address = address_norm, 
+                         houseSuf_dict = stl_std_houseSuffix,
+                         dir_dict = stl_std_directions,
+                         street_dict = stl_std_streets,
+                         suffix_dict = stl_std_suffix)
+```
+
+## Write Data
+Finally, we'll write our initial data set of homicides to the `data/` folder:
+
+```{r write-csv}
+write_csv(allHomicides, here("data", "STL_CRIME_Homicides.csv"))
 ```
