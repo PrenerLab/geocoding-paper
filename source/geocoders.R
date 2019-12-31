@@ -2,7 +2,15 @@
 
 library(httr);library(magrittr)
 
+# For All Geoocoders:
+# ~Begin with Address.txt (Each line is a singleLine address, newline delimited)~
+# For now, else always begin with vector of SingleLine Addresses
+# Coereces this to Appropriate R/System Obj
+# Make and API Call
+# Return and Parse only the Lat/Lon Information
+
 # [ ] Bing (Batch 50 Free, 200K Enterprise) SEE Schema: https://docs.microsoft.com/en-us/bingmaps/spatial-data-services/geocode-dataflow-api/geocode-dataflow-walkthrough
+# This one is also asynchronous
 bing <- function(csv, key){
     url = 'http://spatial.virtualearth.net/REST/v1/Dataflows/Geocode'
     # Need to Implement Iterator if using Free Tier
