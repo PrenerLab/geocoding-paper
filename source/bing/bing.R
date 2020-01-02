@@ -7,6 +7,8 @@ library(httr);library(magrittr);library(dplyr)
 # 2 Simultaneous Jobs, 50 Jobs Max per 24 Hours (Current implementation is linear)
 # 50 Entities Per Batch
 
+# Even with the Linear Implementation, We save 100-200 seconds from the singleline
+
 # Error handling is going to be a big deal. We only get one shot per 24hrs to get this whole thing right
 
 bing <- function(addresses, key){
