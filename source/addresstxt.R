@@ -6,4 +6,4 @@ data <- paste0(data, ' St. Louis, MO')
 
 # Problem Sending Empty Newlines...
 
-write.table(data, 'data/addresses.txt', row.names = FALSE, col.names = FALSE, quote = FALSE)
+#write.table(data, 'data/addresses.txt', row.names = FALSE, col.names = FALSE, quote = FALSE)
