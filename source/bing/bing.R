@@ -1,6 +1,8 @@
 # Bing Geocoder
 library(httr);library(magrittr);library(dplyr)
 
+## NEED TO RERUN. Computer may have slept, affecting timing. The google single line was ~200 seconds faster
+
 # Bing (Batch 50 Free, 200K Enterprise)
 # Docs: https://docs.microsoft.com/en-us/bingmaps/spatial-data-services/geocode-dataflow-api/geocode-dataflow-walkthrough
 # This API is Asynchronous
