@@ -7,6 +7,10 @@ library(httr);library(magrittr);library(dplyr)
 esri <- function(addresses, key){
   # API Fails when Sending Large Quantites of Addresses
   # So I implement batches of 50
+  
+    # Add Id as Name to Vector 
+  names(addresses) <- seq_along(addresses)
+    # Split into Batches
   jobs <- split(addresses, (seq(length(addresses))-1) %/% 50)
   returns <- vector('list', length(jobs))
   
@@ -17,7 +21,7 @@ esri <- function(addresses, key){
     for (j in seq_along(jobs[[i]])){
       schema <-
         paste0(schema,
-               '{"attributes":{"OBJECTID":', j,',"SingleLine":"',addresses[j],'"}},'
+               '{"attributes":{"OBJECTID":', names(jobs[[i]][j]),',"SingleLine":"',jobs[[i]][j],'"}},'
         )
     }
       # Remove last comma with closing brackets
@@ -67,18 +71,18 @@ esri <- function(addresses, key){
 }
 
 # Load Vector of Addresses
-# data <- read.csv('data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)['address_norm']
-# data <- simplify2array(data)
-# data <- paste0(data, ' St. Louis, MO') # Add St. Louis Key (Some Blanks though...)
-# addresses <- data
-# 
-# # Load Key
-# ekey <- yaml::read_yaml('creds.yml')$esri
-# 
-# # Full Test Run
-# etime <- system.time({
-#   efull <- esri(addresses, ekey) 
-# })
+data <- read.csv('data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)['address_norm']
+data <- simplify2array(data)
+data <- paste0(data, ' St. Louis, MO') # Add St. Louis Key (Some Blanks though...)
+addresses <- data
 
-#save(etime, efull, file = 'results/esri.rda')
+# Load Key
+ekey <- yaml::read_yaml('creds.yml')$esri
+
+# Full Test Run
+etime <- system.time({
+  efull <- esri(addresses, ekey)
+})
+
+save(etime, efull, file = 'results/esri.rda')
 
