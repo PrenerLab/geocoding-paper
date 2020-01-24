@@ -1839,34 +1839,36 @@ addresses &lt;- read.csv(&#39;../data/STL_CRIME_Homicides.csv&#39;, stringsAsFac
 <p>Now, we’ll run the geocoders and record a time.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQmluZ19CYXRjaF9UaW1lIDwtIHN5c3RlbS50aW1lKHtcbiAgQmluZ19CYXRjaCA8LSBiaW5nKGFkZHJlc3NlcywgY3JlZHMkYmluZylcbn0pXG5cbmBgYCJ9 -->
-<pre class="r"><code>Bing_Batch_Time &lt;- system.time({
-  Bing_Batch &lt;- bing(addresses, creds$bing)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuVG9tVG9tX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoe1xuICBUb21Ub21fQmF0Y2ggPC0gdG9tdG9tKGFkZHJlc3NlcywgY3JlZHMkdG9tdG9tKVxufSlcbnNhdmUoVG9tVG9tX0JhdGNoLCBUb21Ub21fQmF0Y2hfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL1RvbVRvbV9CYXRjaC5yZGEnKVxuI1xuR2VvY29kaW9fQmF0Y2hfVGltZSA8LSBzeXN0ZW0udGltZSh7XG4gIEdlb2NvZGlvX0JhdGNoIDwtIGdlb2NvZGlvKGFkZHJlc3NlcywgY3JlZHMkZ2VvY29kaW8pXG59KVxuc2F2ZShHZW9jb2Rpb19CYXRjaCwgR2VvY29kaW9fQmF0Y2hfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL0dlb2NvZGlvX0JhdGNoLnJkYScpXG4jXG5DZW5zdXNfQmF0Y2hfVGltZSA8LSBzeXN0ZW0udGltZSh7XG4gICMgZ2V0IHVzYWJsZSBkYXRhIGZvcm1hdFxuICBkZiA8LSByZWFkLmNzdignLi4vZGF0YS9TVExfQ1JJTUVfSG9taWNpZGVzLmNzdicsIHN0cmluZ3NBc0ZhY3RvcnMgPSBGQUxTRSkgJT4lXG4gICAgbXV0YXRlKHN0YXRlID0gJ01PJywgY2l0eSA9ICdTdC4gTG91aXMnKVxuICBDZW5zdXNfQmF0Y2ggPC0gY2Vuc3VzeHk6OmN4eV9nZW9jb2RlKGRmLCBhZGRyZXNzX25vcm0sIGNpdHksIHN0YXRlLCBvdXRwdXQgPSAndGliYmxlJylcbn0pXG5cbmBgYCJ9 -->
+<pre class="r"><code>TomTom_Batch_Time &lt;- system.time({
+  TomTom_Batch &lt;- tomtom(addresses, creds$tomtom)
+})
+save(TomTom_Batch, TomTom_Batch_Time, file = &#39;../results/TomTom_Batch.rda&#39;)
+#
+Geocodio_Batch_Time &lt;- system.time({
+  Geocodio_Batch &lt;- geocodio(addresses, creds$geocodio)
+})
+save(Geocodio_Batch, Geocodio_Batch_Time, file = &#39;../results/Geocodio_Batch.rda&#39;)
+#
+Census_Batch_Time &lt;- system.time({
+  # get usable data format
+  df &lt;- read.csv(&#39;../data/STL_CRIME_Homicides.csv&#39;, stringsAsFactors = FALSE) %&gt;%
+    mutate(state = &#39;MO&#39;, city = &#39;St. Louis&#39;)
+  Census_Batch &lt;- censusxy::cxy_geocode(df, address_norm, city, state, output = &#39;tibble&#39;)
 })
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gRyRyZXNvdXJjZVNldHNbWzFdXSRyZXNvdXJjZXNbWzFdXSRsaW5rc1tbMl1dIDogXG4gIHN1YnNjcmlwdCBvdXQgb2YgYm91bmRzXG5FcnJvciBpbiBHJHJlc291cmNlU2V0c1tbMV1dJHJlc291cmNlc1tbMV1dJGxpbmtzW1syXV0gOiBcbiAgc3Vic2NyaXB0IG91dCBvZiBib3VuZHNcbkVycm9yIGluIEckcmVzb3VyY2VTZXRzW1sxXV0kcmVzb3VyY2VzW1sxXV0kbGlua3NbWzJdXSA6IFxuICBzdWJzY3JpcHQgb3V0IG9mIGJvdW5kc1xuRXJyb3IgaW4gRyRyZXNvdXJjZVNldHNbWzFdXSRyZXNvdXJjZXNbWzFdXSRsaW5rc1tbMl1dIDogXG4gIHN1YnNjcmlwdCBvdXQgb2YgYm91bmRzXG5FcnJvciBpbiBHJHJlc291cmNlU2V0c1tbMV1dJHJlc291cmNlc1tbMV1dJGxpbmtzW1syXV0gOiBcbiAgc3Vic2NyaXB0IG91dCBvZiBib3VuZHNcbkVycm9yIGluIEckcmVzb3VyY2VTZXRzW1sxXV0kcmVzb3VyY2VzW1sxXV0kbGlua3NbWzJdXSA6IFxuICBzdWJzY3JpcHQgb3V0IG9mIGJvdW5kc1xuRXJyb3IgaW4gRyRyZXNvdXJjZVNldHNbWzFdXSRyZXNvdXJjZXNbWzFdXSRsaW5rc1tbMl1dIDogXG4gIHN1YnNjcmlwdCBvdXQgb2YgYm91bmRzXG5FcnJvciBpbiBHJHJlc291cmNlU2V0c1tbMV1dJHJlc291cmNlc1tbMV1dJGxpbmtzW1syXV0gOiBcbiAgc3Vic2NyaXB0IG91dCBvZiBib3VuZHNcbkVycm9yIGluIEckcmVzb3VyY2VTZXRzW1sxXV0kcmVzb3VyY2VzW1sxXV0kbGlua3NbWzJdXSA6IFxuICBzdWJzY3JpcHQgb3V0IG9mIGJvdW5kc1xuRXJyb3IgaW4gRyRyZXNvdXJjZVNldHNbWzFdXSRyZXNvdXJjZXNbWzFdXSRsaW5rc1tbMl1dIDogXG4gIHN1YnNjcmlwdCBvdXQgb2YgYm91bmRzXG4ifQ== -->
-<pre><code>Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds
-Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] : 
-  subscript out of bounds</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiT21pc3Npb24gb2YgY2l0eSwgc3RhdGUgb3IgemlwIGNvZGUgZ3JlYXRseSByZWR1Y2VzIHRoZSBzcGVlZCBhbmQgYWNjdXJhY3kgb2YgdGhlIGdlb2NvZGVyRXhwZWN0ZWQgMiBwaWVjZXMuIE1pc3NpbmcgcGllY2VzIGZpbGxlZCB3aXRoIGBOQWAgaW4gMjAwIHJvd3MgWzIsIDEwLCAxNCwgMTUsIDE5LCAyOCwgMzAsIDM5LCA0MywgNDksIDUzLCA3MSwgNzUsIDg4LCA5NiwgOTcsIDEwMSwgMTA0LCAxMTMsIDExOCwgLi4uXS5FeHBlY3RlZCAyIHBpZWNlcy4gTWlzc2luZyBwaWVjZXMgZmlsbGVkIHdpdGggYE5BYCBpbiAxMzEgcm93cyBbMSwgNSwgOSwgMTEsIDEyLCAxNCwgMjEsIDIyLCAyNywgMjksIDMwLCA0OCwgNjEsIDYzLCA2NCwgNjYsIDY5LCA3MCwgNzcsIDg0LCAuLi5dLlxuIn0= -->
+<pre><code>Omission of city, state or zip code greatly reduces the speed and accuracy of the geocoderExpected 2 pieces. Missing pieces filled with `NA` in 200 rows [2, 10, 14, 15, 19, 28, 30, 39, 43, 49, 53, 71, 75, 88, 96, 97, 101, 104, 113, 118, ...].Expected 2 pieces. Missing pieces filled with `NA` in 131 rows [1, 5, 9, 11, 12, 14, 21, 22, 27, 29, 30, 48, 61, 63, 64, 66, 69, 70, 77, 84, ...].</code></pre>
 <!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2F2ZShDZW5zdXNfQmF0Y2gsIENlbnN1c19CYXRjaF9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvQ2Vuc3VzX0JhdGNoLnJkYScpXG4jXG5IRVJFX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoe1xuICBIRVJFX0JhdGNoIDwtIGhlcmUoYWRkcmVzc2VzLCBjcmVkcyRoZXJlKVxufSlcbnNhdmUoSEVSRV9CYXRjaCwgSEVSRV9CYXRjaF9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvSEVSRV9CYXRjaC5yZGEnKVxuYGBgIn0= -->
+<pre class="r"><code>save(Census_Batch, Census_Batch_Time, file = &#39;../results/Census_Batch.rda&#39;)
+#
+HERE_Batch_Time &lt;- system.time({
+  HERE_Batch &lt;- here(addresses, creds$here)
+})
+save(HERE_Batch, HERE_Batch_Time, file = &#39;../results/HERE_Batch.rda&#39;)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="build-a-dataframe" class="section level3">
@@ -1874,6 +1876,78 @@ Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] :
 <p>We’ll now build a large dataframe with all of our results</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2luZ2xlX3RvX2NvbCA8LSBmdW5jdGlvbihsaXN0LCBwcmVmaXgpe1xuICBsYXRzID0gc2FwcGx5KGxpc3QsIGZ1bmN0aW9uKHgpe3RyeUNhdGNoKHgkbGF0LCBlcnJvciA9IGZ1bmN0aW9uKGUpIHJldHVybihOQSkgKX0pXG4gIGxvbnMgPSBzYXBwbHkobGlzdCwgZnVuY3Rpb24oeCl7dHJ5Q2F0Y2goeCRsb24sIGVycm9yID0gZnVuY3Rpb24oZSkgcmV0dXJuKE5BKSApfSlcbiAgZGYgPSBkYXRhLmZyYW1lKHN0cmluZ3NBc0ZhY3RvcnMgPSBGQUxTRSxcbiAgICAgICAgICAgICAgICAgIGxhdCA9IGxhdHMsXG4gICAgICAgICAgICAgICAgICBsb24gPSBsb25zKVxuICBcbiAgbmFtZXMoZGYpIDwtIHBhc3RlMChwcmVmaXgsICcuJywgbmFtZXMoZGYpKVxuICByZXR1cm4oZGYpXG59XG5cbmFsbF9nZW9jb2RlcyA8LSBcbiAgZGF0YS5mcmFtZShzdHJpbmdzQXNGYWN0b3JzID0gRkFMU0UsXG4gICAgYWRkcmVzcyA9IHBhc3RlMChsb2NhbCRhZGRyZXNzX25vcm0sICcgU3QuIExvdWlzLCBNTycpLFxuICAgIHRydXRoLmxhdCA9IGxvY2FsJGd3X3ksXG4gICAgdHJ1dGgubG9uID0gbG9jYWwkZ3dfeCxcbiAgICBzaW5nbGVfdG9fY29sKEJpbmdfU2luZ2xlLCAnQmluZ1NpbmdsZScpLFxuICAgIHNpbmdsZV90b19jb2woRXNyaV9TaW5nbGUsICdFc3JpU2luZ2xlJyksXG4gICAgc2luZ2xlX3RvX2NvbChHb29nbGVfU2luZ2xlLCAnR29vZ2xlJyksXG4gICAgc2luZ2xlX3RvX2NvbChIRVJFX1NpbmdsZSwgJ0hlcmVTaW5nbGUnKSxcbiAgICBzaW5nbGVfdG9fY29sKE9wZW5DYWdlX1NpbmdsZSwgJ09wZW5DYWdlJyksXG4gICAgc2luZ2xlX3RvX2NvbChUb21Ub21fU2luZ2xlLCAnVG9tVG9tU2luZ2xlJyksXG4gICAgc2luZ2xlX3RvX2NvbChDZW5zdXNfU2luZ2xlLCAnQ2Vuc3VzU2luZ2xlJyksXG4gICAgc2luZ2xlX3RvX2NvbChHZW9jb2Rpb19TaW5nbGUsICdHZW9jb2Rpb1NpbmdsZScpXG4pXG5cbiMgVG9tVG9tXG5hbGxfZ2VvY29kZXMgJTw+JSBcbiAgbGVmdF9qb2luKFxuICAgIFRvbVRvbV9CYXRjaCAlPiUgXG4gICAgICBmaWx0ZXIoIWR1cGxpY2F0ZWQoVG9tVG9tX0JhdGNoJGFkZHJlc3MpKSAlPiVcbiAgICAgIHJlbmFtZShUb21Ub21CYXRjaC5sYXQgPSBsYXQsXG4gICAgICAgICAgICAgVG9tVG9tQmF0Y2gubG9uID0gbG9uKVxuICAgIClcbmBgYCJ9 -->
+<pre class="r"><code>single_to_col &lt;- function(list, prefix){
+  lats = sapply(list, function(x){tryCatch(x$lat, error = function(e) return(NA) )})
+  lons = sapply(list, function(x){tryCatch(x$lon, error = function(e) return(NA) )})
+  df = data.frame(stringsAsFactors = FALSE,
+                  lat = lats,
+                  lon = lons)
+  
+  names(df) &lt;- paste0(prefix, &#39;.&#39;, names(df))
+  return(df)
+}
+
+all_geocodes &lt;- 
+  data.frame(stringsAsFactors = FALSE,
+    address = paste0(local$address_norm, &#39; St. Louis, MO&#39;),
+    truth.lat = local$gw_y,
+    truth.lon = local$gw_x,
+    single_to_col(Bing_Single, &#39;BingSingle&#39;),
+    single_to_col(Esri_Single, &#39;EsriSingle&#39;),
+    single_to_col(Google_Single, &#39;Google&#39;),
+    single_to_col(HERE_Single, &#39;HereSingle&#39;),
+    single_to_col(OpenCage_Single, &#39;OpenCage&#39;),
+    single_to_col(TomTom_Single, &#39;TomTomSingle&#39;),
+    single_to_col(Census_Single, &#39;CensusSingle&#39;),
+    single_to_col(Geocodio_Single, &#39;GeocodioSingle&#39;)
+)
+
+# TomTom
+all_geocodes %&lt;&gt;% 
+  left_join(
+    TomTom_Batch %&gt;% 
+      filter(!duplicated(TomTom_Batch$address)) %&gt;%
+      rename(TomTomBatch.lat = lat,
+             TomTomBatch.lon = lon)
+    )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiSm9pbmluZywgYnkgPSBcImFkZHJlc3NcIlxuIn0= -->
+<pre><code>Joining, by = &quot;address&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBCaW5nXG5hbGxfZ2VvY29kZXMgJTw+JVxuICBsZWZ0X2pvaW4oXG4gICAgQmluZ19CYXRjaCAlPiVcbiAgICAgIGZpbHRlcighZHVwbGljYXRlZChCaW5nX0JhdGNoJEdlb2NvZGVSZXF1ZXN0LkFkZHJlc3MuQWRkcmVzc0xpbmUpKSAlPiVcbiAgICAgIHRyYW5zbXV0ZShhZGRyZXNzID0gR2VvY29kZVJlcXVlc3QuQWRkcmVzcy5BZGRyZXNzTGluZSAlPiUgXG4gICAgICAgICAgICAgICAgICBnc3ViKCdTdC4gTG91aXMnLCdTdC4gTG91aXMsIE1PJywuKSxcbiAgICAgICAgICAgICAgICBCaW5nQmF0Y2gubGF0ID0gR2VvY29kZVJlc3BvbnNlLlBvaW50LkxhdGl0dWRlLFxuICAgICAgICAgICAgICAgIEJpbmdCYXRjaC5sb24gPSBHZW9jb2RlUmVzcG9uc2UuUG9pbnQuTG9uZ2l0dWRlKVxuICApXG5gYGAifQ== -->
+<pre class="r"><code># Bing
+all_geocodes %&lt;&gt;%
+  left_join(
+    Bing_Batch %&gt;%
+      filter(!duplicated(Bing_Batch$GeocodeRequest.Address.AddressLine)) %&gt;%
+      transmute(address = GeocodeRequest.Address.AddressLine %&gt;% 
+                  gsub(&#39;St. Louis&#39;,&#39;St. Louis, MO&#39;,.),
+                BingBatch.lat = GeocodeResponse.Point.Latitude,
+                BingBatch.lon = GeocodeResponse.Point.Longitude)
+  )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiSm9pbmluZywgYnkgPSBcImFkZHJlc3NcIlxuIn0= -->
+<pre><code>Joining, by = &quot;address&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyAoT3JkZXJlZCBCYXRjaGVzKVxuYWxsX2dlb2NvZGVzICU8PiVcbiAgY2JpbmQoXG4gICAgQ2Vuc3VzX0JhdGNoICU+JVxuICAgICAgdHJhbnNtdXRlKENlbnN1c0JhdGNoLmxhdCA9IGxhdCxcbiAgICAgICAgICAgICAgICBDZW5zdXNCYXRjaC5sb24gPSBsb24pLFxuICAgIEdlb2NvZGlvX0JhdGNoICU+JVxuICAgICAgdHJhbnNtdXRlKEdlb2NvZGlvQmF0Y2gubGF0ID0gbGF0LFxuICAgICAgICAgICAgICAgIEdlb2NvZGlvQmF0Y2gubG9uID0gbG5nKSxcbiAgICBFc3JpX0JhdGNoICU+JVxuICAgICAgdHJhbnNtdXRlKEVzcmlCYXRjaC5sYXQgPSB5LFxuICAgICAgICAgICAgICAgIEVzcmlCYXRjaC5sb24gPSB4KSxcbiAgICBIRVJFX0JhdGNoICU+JVxuICAgICAgdHJhbnNtdXRlKEhlcmVCYXRjaC5sYXQgPSBkaXNwbGF5TGF0aXR1ZGUsXG4gICAgICAgICAgICAgICAgSGVyZUJhdGNoLmxvbiA9IGRpc3BsYXlMb25naXR1ZGUpXG4gICAgKVxuYGBgIn0= -->
+<pre class="r"><code># (Ordered Batches)
+all_geocodes %&lt;&gt;%
+  cbind(
+    Census_Batch %&gt;%
+      transmute(CensusBatch.lat = lat,
+                CensusBatch.lon = lon),
+    Geocodio_Batch %&gt;%
+      transmute(GeocodioBatch.lat = lat,
+                GeocodioBatch.lon = lng),
+    Esri_Batch %&gt;%
+      transmute(EsriBatch.lat = y,
+                EsriBatch.lon = x),
+    HERE_Batch %&gt;%
+      transmute(HereBatch.lat = displayLatitude,
+                HereBatch.lon = displayLongitude)
+    )</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1883,11 +1957,92 @@ Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] :
 <p>To compare the timing of these geocoders: (These were ran multiple times with little variability between trials)</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc29ydCgpXG5gYGAifQ== -->
-<pre class="r"><code>sort()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgYW5kIFNvcnQgRmFzdGVzdCBUaW1lc1xudGltZXMgPC0gZnVuY3Rpb24oKXtcbiAgdGltZV9vYmpzIDwtIGxzKGVudmlyID0gLkdsb2JhbEVudikgJT4lXG4gICAgZ3JlcCgnVGltZScgLC4sdmFsdWUgPSBUUlVFKVxuICBcbiAgdGltZSA8LSBtZ2V0KHRpbWVfb2JqcywgZW52aXIgPSAuR2xvYmFsRW52KVxuICByZXN1bHRzID0gdmVjdG9yKCdudW1lcmljJywgbGVuZ3RoKHRpbWUpKVxuICBcbiAgZm9yIChpIGluIHNlcV9hbG9uZyhyZXN1bHRzKSl7XG4gICAgcmVzdWx0c1tpXSA8LSB0aW1lW1tpXV1bM11cbiAgfVxuICBuYW1lcyhyZXN1bHRzKSA8LSBuYW1lcyh0aW1lKVxuICBcbiAgcmVzdWx0cyAlPD4lIHNvcnRcbiAgXG4gIHByaW50KHJlc3VsdHMpXG59XG50aW1lcygpXG5gYGAifQ== -->
+<pre class="r"><code># Get and Sort Fastest Times
+times &lt;- function(){
+  time_objs &lt;- ls(envir = .GlobalEnv) %&gt;%
+    grep(&#39;Time&#39; ,.,value = TRUE)
+  
+  time &lt;- mget(time_objs, envir = .GlobalEnv)
+  results = vector(&#39;numeric&#39;, length(time))
+  
+  for (i in seq_along(results)){
+    results[i] &lt;- time[[i]][3]
+  }
+  names(results) &lt;- names(time)
+  
+  results %&lt;&gt;% sort
+  
+  print(results)
+}
+times()</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICBIRVJFX0JhdGNoX1RpbWUgICAgICBFc3JpX0JhdGNoX1RpbWUgIEdlb2NvZGlvX0JhdGNoX1RpbWUgXG4gICAgICAgICAgICAgIDMzLjg4NiAgICAgICAgICAgICAgIDM2LjMzNiAgICAgICAgICAgICAgMTY2LjcwNiBcbiAgICBIRVJFX1NpbmdsZV9UaW1lICAgICBFc3JpX1NpbmdsZV9UaW1lICAgIFRvbVRvbV9CYXRjaF9UaW1lIFxuICAgICAgICAgICAgIDE3OC45NDUgICAgICAgICAgICAgIDIyNy42NTYgICAgICAgICAgICAgIDM2NS42MDggXG4gICBDZW5zdXNfQmF0Y2hfVGltZSBHZW9jb2Rpb19TaW5nbGVfVGltZSAgICAgIEJpbmdfQmF0Y2hfVGltZSBcbiAgICAgICAgICAgICA0MDkuMjg0ICAgICAgICAgICAgICA0OTQuMzAyICAgICAgICAgICAgICA1MzYuMDE2IFxuICAgIEJpbmdfU2luZ2xlX1RpbWUgICBHb29nbGVfU2luZ2xlX1RpbWUgT3BlbkNhZ2VfU2luZ2xlX1RpbWUgXG4gICAgICAgICAgICAgNTg3LjA2NCAgICAgICAgICAgICAgNjA2LjY0MSAgICAgICAgICAgICAgNjY0LjMwMCBcbiAgVG9tVG9tX1NpbmdsZV9UaW1lICAgQ2Vuc3VzX1NpbmdsZV9UaW1lIFxuICAgICAgICAgICAgIDczMC4yNzcgICAgICAgICAgICAgMTcxNS44NzIgXG4ifQ== -->
+<pre><code>     HERE_Batch_Time      Esri_Batch_Time  Geocodio_Batch_Time 
+              33.886               36.336              166.706 
+    HERE_Single_Time     Esri_Single_Time    TomTom_Batch_Time 
+             178.945              227.656              365.608 
+   Census_Batch_Time Geocodio_Single_Time      Bing_Batch_Time 
+             409.284              494.302              536.016 
+    Bing_Single_Time   Google_Single_Time OpenCage_Single_Time 
+             587.064              606.641              664.300 
+  TomTom_Single_Time   Census_Single_Time 
+             730.277             1715.872 </code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="compare-match-rate" class="section level2">
+<h2>Compare Match Rate</h2>
+<p>This is the number of responses out of 1822 addresses submitted. Note, any valid response is counted, regardless of accuracy.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ21yIDwtIGZ1bmN0aW9uKHZlY3Rvcil7XG4gIDE4MjIgLSBzdW0oaXMubmEodmVjdG9yKSlcbn1cblxubGF0cyA9IG5hbWVzKGFsbF9nZW9jb2Rlcylbc2VxKGZyb20gPSAyLCB0byA9IDMwLCBieSA9IDIpXVxuZm9yIChpIGluIGxhdHMpe1xuICBwcmludChpICU+JSBnc3ViKCcubGF0JywnJywuKSlcbiAgcHJpbnQoZ21yKGFsbF9nZW9jb2Rlc1tpXSkpXG59XG5gYGAifQ== -->
+<pre class="r"><code>gmr &lt;- function(vector){
+  1822 - sum(is.na(vector))
+}
+
+lats = names(all_geocodes)[seq(from = 2, to = 30, by = 2)]
+for (i in lats){
+  print(i %&gt;% gsub(&#39;.lat&#39;,&#39;&#39;,.))
+  print(gmr(all_geocodes[i]))
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwidHJ1dGhcIlxuWzFdIDE1MTZcblsxXSBcIkJpbmdTaW5nbGVcIlxuWzFdIDE4MjJcblsxXSBcIkVzcmlTaW5nbGVcIlxuWzFdIDE4MjJcblsxXSBcIkdvb2dsZVwiXG5bMV0gMTgyMVxuWzFdIFwiSGVyZVNpbmdsZVwiXG5bMV0gMTgyMlxuWzFdIFwiT3BlbkNhZ2VcIlxuWzFdIDE4MjJcblsxXSBcIlRvbVRvbVNpbmdsZVwiXG5bMV0gMTgyMlxuWzFdIFwiQ2Vuc3VzU2luZ2xlXCJcblsxXSAxNzQ1XG5bMV0gXCJHZW9jb2Rpb1NpbmdsZVwiXG5bMV0gMTgyMlxuWzFdIFwiVG9tVG9tQmF0Y2hcIlxuWzFdIDE4MThcblsxXSBcIkJpbmdCYXRjaFwiXG5bMV0gMTgxNFxuWzFdIFwiQ2Vuc3VzQmF0Y2hcIlxuWzFdIDE0NDVcblsxXSBcIkdlb2NvZGlvQmF0Y2hcIlxuWzFdIDE4MjJcblsxXSBcIkVzcmlCYXRjaFwiXG5bMV0gMTgyMlxuWzFdIFwiSGVyZUJhdGNoXCJcblsxXSAxODIyXG4ifQ== -->
+<pre><code>[1] &quot;truth&quot;
+[1] 1516
+[1] &quot;BingSingle&quot;
+[1] 1822
+[1] &quot;EsriSingle&quot;
+[1] 1822
+[1] &quot;Google&quot;
+[1] 1821
+[1] &quot;HereSingle&quot;
+[1] 1822
+[1] &quot;OpenCage&quot;
+[1] 1822
+[1] &quot;TomTomSingle&quot;
+[1] 1822
+[1] &quot;CensusSingle&quot;
+[1] 1745
+[1] &quot;GeocodioSingle&quot;
+[1] 1822
+[1] &quot;TomTomBatch&quot;
+[1] 1818
+[1] &quot;BingBatch&quot;
+[1] 1814
+[1] &quot;CensusBatch&quot;
+[1] 1445
+[1] &quot;GeocodioBatch&quot;
+[1] 1822
+[1] &quot;EsriBatch&quot;
+[1] 1822
+[1] &quot;HereBatch&quot;
+[1] 1822</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Note that our ground truth is not as thorough as the commerical geocoders even, which is a serious limitation. However, we will filter the data in order to accomplish a fair comparison of known locations.</p>
 </div>
 <div id="compare-accuracy" class="section level2">
 <h2>Compare Accuracy</h2>
@@ -1896,22 +2051,104 @@ Error in G$resourceSets[[1]]$resources[[1]]$links[[2]] :
 <p>The formulat for RMSE is as follows: <span class="math inline">\(RMSE = \sqrt{\frac{1}{n}\sum_{t=1}^{n}e_t^2}\)</span></p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucm1zZSA8LSBmdW5jdGlvbih2ZWN0b3Ipe1xuICAjIEFjY2VwdHMgYSBWZWN0b3Igb2YgRGlmZmVyZW5jZXMgZnJvbSBFeHBlY3RlZFxuICBzcSA9IHZlY3RvciBeIDJcbiAgbiA9IGxlbmd0aCh2ZWN0b3IpXG4gIHNtID0gc3VtKHNxL24pXG4gIHJvb3QgPSBzcXJ0KHNtKVxuICByZXR1cm4ocm9vdClcbn1cbmBgYCJ9 -->
-<pre class="r"><code>rmse &lt;- function(vector){
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGlzdF9kaWZmIDwtIGZ1bmN0aW9uKGV4cGVjdGVkX2xvbiwgZXhwZWN0ZWRfbGF0LCBhY3R1YWxfbG9uLCBhY3R1YWxfbGF0KXtcbiAgIyBBY2NlcHRzIFZlY3RvciBvZiBFeHBlY3RlZCBMYXQvTG9uXG4gICMgQW5kIFZlY3RvciBvZiBBY3R1YWwgTGF0L0xvblxuICAjIFJlcGxhY2UgTkFzXG4gIGFjdHVhbF9sb24gJTw+JSBzYXBwbHkoZnVuY3Rpb24oeCl7XG4gICAgaWYoaXMubmEoeCkpe1xuICAgICAgcmV0dXJuKDApXG4gICAgfWVsc2V7XG4gICAgICByZXR1cm4oeClcbiAgICB9XG4gIH0pXG4gIGFjdHVhbF9sYXQgJTw+JSBzYXBwbHkoZnVuY3Rpb24oeCl7XG4gICAgaWYoaXMubmEoeCkpe1xuICAgICAgcmV0dXJuKDApXG4gICAgfWVsc2V7XG4gICAgICByZXR1cm4oeClcbiAgICB9XG4gIH0pXG4gIFxuICBkaWZmcyA8LSB2ZWN0b3IoJ251bWVyaWMnLCBsZW5ndGgoZXhwZWN0ZWRfbG9uKSlcbiAgZm9yIChpIGluIHNlcV9hbG9uZyhkaWZmcykpe1xuICAgIGRpZmZzW2ldIDwtIEltYXA6OmdkaXN0KGV4cGVjdGVkX2xvbltpXSwgZXhwZWN0ZWRfbGF0W2ldLCBhY3R1YWxfbG9uW2ldLCBhY3R1YWxfbGF0W2ldLCB1bml0cyA9ICdtJylcbiAgfVxuICAjIFJldHVybiBWZWN0b3Igb2YgRGlzdGFuY2UgRGlmZmVyZW5jZVxuICByZXR1cm4oZGlmZnMpXG59XG5cbnJtc2UgPC0gZnVuY3Rpb24odmVjdG9yKXtcbiAgIyBBY2NlcHRzIGEgVmVjdG9yIG9mIERpZmZlcmVuY2VzIGZyb20gRXhwZWN0ZWRcbiAgbiA9IGxlbmd0aCh2ZWN0b3IpXG4gIHNxID0gdmVjdG9yIF4gMlxuICBzbSA9IHN1bShzcS9uKVxuICByb290ID0gc3FydChzbSlcbiAgcmV0dXJuKHJvb3QpXG59XG5cbmBgYCJ9 -->
+<pre class="r"><code>dist_diff &lt;- function(expected_lon, expected_lat, actual_lon, actual_lat){
+  # Accepts Vector of Expected Lat/Lon
+  # And Vector of Actual Lat/Lon
+  # Replace NAs
+  actual_lon %&lt;&gt;% sapply(function(x){
+    if(is.na(x)){
+      return(0)
+    }else{
+      return(x)
+    }
+  })
+  actual_lat %&lt;&gt;% sapply(function(x){
+    if(is.na(x)){
+      return(0)
+    }else{
+      return(x)
+    }
+  })
+  
+  diffs &lt;- vector(&#39;numeric&#39;, length(expected_lon))
+  for (i in seq_along(diffs)){
+    diffs[i] &lt;- Imap::gdist(expected_lon[i], expected_lat[i], actual_lon[i], actual_lat[i], units = &#39;m&#39;)
+  }
+  # Return Vector of Distance Difference
+  return(diffs)
+}
+
+rmse &lt;- function(vector){
   # Accepts a Vector of Differences from Expected
-  sq = vector ^ 2
   n = length(vector)
+  sq = vector ^ 2
   sm = sum(sq/n)
   root = sqrt(sm)
   return(root)
+}
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>We also need to create a dataset that we can fairly compared to the ground truth, so we’ll remove the NAs from our ground truth.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now to run the analysis of accuracy:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudHJ1dGgubGF0ID0gdHJ1dGgkdHJ1dGgubGF0XG50cnV0aC5sb24gPSB0cnV0aCR0cnV0aC5sb25cbmxhdHMgPSBuYW1lcyh0cnV0aClbc2VxKGZyb20gPSA0LCB0byA9IDMwLCBieSA9IDIpXVxubG9ucyA9IG5hbWVzKHRydXRoKVtzZXEoZnJvbSA9IDUsIHRvID0gMzEsIGJ5ID0gMildXG5cbmZvciAoaSBpbiBzZXFfYWxvbmcobGF0cykpe1xuICByZXMgPSBkaXN0X2RpZmYodHJ1dGgubG9uLCB0cnV0aC5sYXQsIHRydXRoW1tsb25zW2ldXV0sIHRydXRoW1tsYXRzW2ldXV0pICU+JVxuICAgIHJtc2VcbiAgXG4gIHByaW50KGxhdHNbaV0gJT4lIGdzdWIoJy5sYXQnLCcnLC4pKVxuICBwcmludChyZXMpXG59XG5gYGAifQ== -->
+<pre class="r"><code>truth.lat = truth$truth.lat
+truth.lon = truth$truth.lon
+lats = names(truth)[seq(from = 4, to = 30, by = 2)]
+lons = names(truth)[seq(from = 5, to = 31, by = 2)]
+
+for (i in seq_along(lats)){
+  res = dist_diff(truth.lon, truth.lat, truth[[lons[i]]], truth[[lats[i]]]) %&gt;%
+    rmse
+  
+  print(lats[i] %&gt;% gsub(&#39;.lat&#39;,&#39;&#39;,.))
+  print(res)
 }</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiQmluZ1NpbmdsZVwiXG5bMV0gNTM0NzkuMDNcblsxXSBcIkVzcmlTaW5nbGVcIlxuWzFdIDM1Mi41NTExXG5bMV0gXCJHb29nbGVcIlxuWzFdIDI1NzY1Ny45XG5bMV0gXCJIZXJlU2luZ2xlXCJcblsxXSA3NDQuNjkxNFxuWzFdIFwiT3BlbkNhZ2VcIlxuWzFdIDE3NjMuOTk4XG5bMV0gXCJUb21Ub21TaW5nbGVcIlxuWzFdIDE4MTYuOTg5XG5bMV0gXCJDZW5zdXNTaW5nbGVcIlxuWzFdIDk5NzgwMC4xXG5bMV0gXCJHZW9jb2Rpb1NpbmdsZVwiXG5bMV0gMTUyOC44OTlcblsxXSBcIlRvbVRvbUJhdGNoXCJcblsxXSAxODE2Ljk4OVxuWzFdIFwiQmluZ0JhdGNoXCJcblsxXSAxNDg0MTIuNFxuWzFdIFwiQ2Vuc3VzQmF0Y2hcIlxuWzFdIDQyNTc1MDNcblsxXSBcIkdlb2NvZGlvQmF0Y2hcIlxuWzFdIDE1MjguODk5XG5bMV0gXCJFc3JpQmF0Y2hcIlxuWzFdIDM1Mi41NTExXG5bMV0gXCJIZXJlQmF0Y2hcIlxuWzFdIDc0NC42OTE0XG4ifQ== -->
+<pre><code>[1] &quot;BingSingle&quot;
+[1] 53479.03
+[1] &quot;EsriSingle&quot;
+[1] 352.5511
+[1] &quot;Google&quot;
+[1] 257657.9
+[1] &quot;HereSingle&quot;
+[1] 744.6914
+[1] &quot;OpenCage&quot;
+[1] 1763.998
+[1] &quot;TomTomSingle&quot;
+[1] 1816.989
+[1] &quot;CensusSingle&quot;
+[1] 997800.1
+[1] &quot;GeocodioSingle&quot;
+[1] 1528.899
+[1] &quot;TomTomBatch&quot;
+[1] 1816.989
+[1] &quot;BingBatch&quot;
+[1] 148412.4
+[1] &quot;CensusBatch&quot;
+[1] 4257503
+[1] &quot;GeocodioBatch&quot;
+[1] 1528.899
+[1] &quot;EsriBatch&quot;
+[1] 352.5511
+[1] &quot;HereBatch&quot;
+[1] 744.6914</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCBHZW9jb2RlcnMiCmF1dGhvcjogIkJyYW5zb24gRm94IgpkYXRlOiAnKGByIGZvcm1hdChTeXMudGltZSgpLCAiJUIgJWQsICVZIilgKScKb3V0cHV0OiAKICBnaXRodWJfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyMgSW50cm9kdWN0aW9uClRoaXMgbm90ZWJvb2sgdXNlcyA3IGRpZmZlcmVudCBhdmFpbGFibGUgc2VydmljZXMgdG8gZ2VvY29kZSBkYXRhLCBtZWFzdXJpbmcgYm90aCB0aGUgcmVzcG9uc2UgYW5kIHRoZSBhY2N1cmFjeSBvZiB0aGUgcmVzcG9uc2UuCgojIyBEZXBlbmRlbmNpZXMKVGhlc2UgcGFja2FnZXMgYXJlIHJlcXVpcmVkIGZvciB0aGUgYW5hbHlzaXMgaW4gdGhpcyBub3RlYm9vay4KYGBge3IgZGVwZW5kZW5jaWVzfQpsaWJyYXJ5KGh0dHIpCmxpYnJhcnkoZHBseXIpCmxpYnJhcnkoZ2x1ZSkKbGlicmFyeShtYWdyaXR0cikKbGlicmFyeShJbWFwKQpsaWJyYXJ5KHlhbWwpCmxpYnJhcnkoY2Vuc3VzeHkpCmBgYAoKIyMjIExvYWQgR2VvY29kZXJzCldlIHdpbGwgYWxzbyBsb2FkIHRoZSBnZW9jb2RpbmcgaW1wbGVtZW50YXRpb25zIHdlIHdyb3RlLgpgYGB7ciBsb2FkLWdlb2NvZGVyc30KIyBTaW5nbGUgTGluZSBHZW9jb2RlcnMKc291cmNlKCcuLi9zb3VyY2Uvc2luZ2xlTGluZS5SJykKIyBCYXRjaCBHZW9jb2RlcnMKc291cmNlKCcuLi9zb3VyY2UvYmluZy5SJykKc291cmNlKCcuLi9zb3VyY2UvZXNyaS5SJykKc291cmNlKCcuLi9zb3VyY2UvZ2VvY29kaW8uUicpCnNvdXJjZSgnLi4vc291cmNlL2hlcmUuUicpCnNvdXJjZSgnLi4vc291cmNlL3RvbXRvbS5SJykKYGBgCgojIyMgTG9hZCBDcmVkZW50aWFscwpXZSBuZWVkIHRvIGxvYWQgdGhlIEFQSS1LZXlzIGZvciB0aGVzZSBzZXJ2aWNlcwpgYGB7ciBrZXlzfQpjcmVkcyA9IHlhbWw6OnJlYWRfeWFtbCgnLi4vY3JlZHMueW1sJykKYGBgCgojIyBMb2FkIERhdGEKTmV4dCwgd2UnbGwgbG9hZCB0aGUgZGF0YSB0byBiZSBnZW9jb2RlZC4gV2UgbmVlZCB0byBhZGQgdGhlIGNpdHkvc3RhdGUgc3VmZml4LgpgYGB7ciBsb2FkLWRhdGF9CiMgTG9hZCB0aGUgR3JvdW5kIFRydXRoCmxvY2FsIDwtIHJlYWQuY3N2KCcuLi9kYXRhL1NUTF9DUklNRV9Ib21pY2lkZXNfbG9jYWxfaWQuY3N2Jywgc3RyaW5nc0FzRmFjdG9ycyA9IEZBTFNFKQphZGRyZXNzZXMgPC0gcmVhZC5jc3YoJy4uL2RhdGEvU1RMX0NSSU1FX0hvbWljaWRlcy5jc3YnLCBzdHJpbmdzQXNGYWN0b3JzID0gRkFMU0UpJGFkZHJlc3Nfbm9ybSAlPiUKICBwYXN0ZTAoJyBTdC4gTG91aXMsIE1PJykKYGBgCgojIyBFeGVjdXRlIEdlb2NvZGVycwpOb3csIHdlJ2xsIHJ1biB0aGUgZ2VvY29kZXJzIGFuZCByZWNvcmQgYSB0aW1lLgpgYGB7ciBnZW9jb2RlfQojIFNpbmdsZSBMaW5lIH5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+CkVzcmlfU2luZ2xlX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEVzcmlfU2luZ2xlIDwtIGJhdGNoKGFkZHJlc3NlcywgQXJjTWFwLCB0b2tlbiA9IGNyZWRzJGVzcmkpCn0pCnNhdmUoRXNyaV9TaW5nbGUsIEVzcmlfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Fc3JpX1NpbmdsZS5yZGEnKQojCkdvb2dsZV9TaW5nbGVfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgR29vZ2xlX1NpbmdsZSA8LSBiYXRjaChhZGRyZXNzZXMsIEdvb2dsZU1hcHMsIGtleSA9IGNyZWRzJGdvb2dsZSkKfSkKc2F2ZShHb29nbGVfU2luZ2xlLCBHb29nbGVfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Hb29nbGVfU2luZ2xlLnJkYScpCiMKSEVSRV9TaW5nbGVfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgSEVSRV9TaW5nbGUgPC0gYmF0Y2goYWRkcmVzc2VzLCBIRVJFLCBrZXkgPSBjcmVkcyRoZXJlKQp9KQpzYXZlKEhFUkVfU2luZ2xlLCBIRVJFX1NpbmdsZV9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvSEVSRV9TaW5nbGUucmRhJykKIwpPcGVuQ2FnZV9TaW5nbGVfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgT3BlbkNhZ2VfU2luZ2xlIDwtIGJhdGNoKGFkZHJlc3NlcywgT3BlbkNhZ2UsIGtleSA9IGNyZWRzJG9wZW5jYWdlKQp9KQpzYXZlKE9wZW5DYWdlX1NpbmdsZSwgT3BlbkNhZ2VfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9PcGVuQ2FnZV9TaW5nbGUucmRhJykKIwpUb21Ub21fU2luZ2xlX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIFRvbVRvbV9TaW5nbGUgPC0gYmF0Y2goYWRkcmVzc2VzLCBUb21Ub20sIGtleSA9IGNyZWRzJHRvbXRvbSkKfSkKc2F2ZShUb21Ub21fU2luZ2xlLCBUb21Ub21fU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Ub21Ub21fU2luZ2xlLnJkYScpCiMKR2VvY29kaW9fU2luZ2xlX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEdlb2NvZGlvX1NpbmdsZSA8LSBiYXRjaChhZGRyZXNzZXMsIEdlb2NvZGlvLCBrZXkgPSBjcmVkcyRnZW9jb2RpbykKfSkKc2F2ZShHZW9jb2Rpb19TaW5nbGUsIEdlb2NvZGlvX1NpbmdsZV9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvR2VvY29kaW9fU2luZ2xlLnJkYScpCiMKQ2Vuc3VzX1NpbmdsZV9UaW1lIDwtIHN5c3RlbS50aW1lKHsKICBDZW5zdXNfU2luZ2xlIDwtIGJhdGNoKGFkZHJlc3NlcywgQ2Vuc3VzQnVyZWF1KQp9KQpzYXZlKENlbnN1c19TaW5nbGUsIENlbnN1c19TaW5nbGVfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL0NlbnN1c19TaW5nbGUucmRhJykKIwpCaW5nX1NpbmdsZV9UaW1lIDwtIHN5c3RlbS50aW1lKHsKICBCaW5nX1NpbmdsZSA8LSBiYXRjaChhZGRyZXNzZXMsIEJpbmcsIGtleSA9IGNyZWRzJGJpbmcpCn0pCnNhdmUoQmluZ19TaW5nbGUsIEJpbmdfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9CaW5nX1NpbmdsZS5yZGEnKQoKIyBCYXRjaCB+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fgpCaW5nX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEJpbmdfQmF0Y2ggPC0gYmluZyhhZGRyZXNzZXMsIGNyZWRzJGJpbmcpCn0pCnNhdmUoQmluZ19CYXRjaCwgQmluZ19CYXRjaF9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvQmluZ19CYXRjaC5yZGEnKQojCkVzcmlfQmF0Y2hfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgRXNyaV9CYXRjaCA8LSBlc3JpKGFkZHJlc3NlcywgY3JlZHMkZXNyaSkKfSkKc2F2ZShFc3JpX0JhdGNoLCBFc3JpX0JhdGNoX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Fc3JpX0JhdGNoLnJkYScpCiMKVG9tVG9tX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIFRvbVRvbV9CYXRjaCA8LSB0b210b20oYWRkcmVzc2VzLCBjcmVkcyR0b210b20pCn0pCnNhdmUoVG9tVG9tX0JhdGNoLCBUb21Ub21fQmF0Y2hfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL1RvbVRvbV9CYXRjaC5yZGEnKQojCkdlb2NvZGlvX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEdlb2NvZGlvX0JhdGNoIDwtIGdlb2NvZGlvKGFkZHJlc3NlcywgY3JlZHMkZ2VvY29kaW8pCn0pCnNhdmUoR2VvY29kaW9fQmF0Y2gsIEdlb2NvZGlvX0JhdGNoX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9HZW9jb2Rpb19CYXRjaC5yZGEnKQojCkNlbnN1c19CYXRjaF9UaW1lIDwtIHN5c3RlbS50aW1lKHsKICAjIGdldCB1c2FibGUgZGF0YSBmb3JtYXQKICBkZiA8LSByZWFkLmNzdignLi4vZGF0YS9TVExfQ1JJTUVfSG9taWNpZGVzLmNzdicsIHN0cmluZ3NBc0ZhY3RvcnMgPSBGQUxTRSkgJT4lCiAgICBtdXRhdGUoc3RhdGUgPSAnTU8nLCBjaXR5ID0gJ1N0LiBMb3VpcycpCiAgQ2Vuc3VzX0JhdGNoIDwtIGNlbnN1c3h5OjpjeHlfZ2VvY29kZShkZiwgYWRkcmVzc19ub3JtLCBjaXR5LCBzdGF0ZSwgb3V0cHV0ID0gJ3RpYmJsZScpCn0pCnNhdmUoQ2Vuc3VzX0JhdGNoLCBDZW5zdXNfQmF0Y2hfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL0NlbnN1c19CYXRjaC5yZGEnKQojCkhFUkVfQmF0Y2hfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgSEVSRV9CYXRjaCA8LSBoZXJlKGFkZHJlc3NlcywgY3JlZHMkaGVyZSkKfSkKc2F2ZShIRVJFX0JhdGNoLCBIRVJFX0JhdGNoX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9IRVJFX0JhdGNoLnJkYScpCmBgYAoKIyMjIEJ1aWxkIGEgRGF0YWZyYW1lCldlJ2xsIG5vdyBidWlsZCBhIGxhcmdlIGRhdGFmcmFtZSB3aXRoIGFsbCBvZiBvdXIgcmVzdWx0cwpgYGB7ciBidWlsZCBkYXRhZnJhbWV9CgpgYGAKCiMjIENvbXBhcmUgVGltaW5nClRvIGNvbXBhcmUgdGhlIHRpbWluZyBvZiB0aGVzZSBnZW9jb2RlcnM6CihUaGVzZSB3ZXJlIHJhbiBtdWx0aXBsZSB0aW1lcyB3aXRoIGxpdHRsZSB2YXJpYWJpbGl0eSBiZXR3ZWVuIHRyaWFscykKYGBge3IgdGltaW5nfQpzb3J0KCkKYGBgCgoKIyMgQ29tcGFyZSBBY2N1cmFjeQpJbiBvcmRlciB0byBjb21wYXJlIGFjY3VyYWN5LCB3ZSBmaXJzdCBjYWxjdWxhdGUgdGhlIGRpZmZlcmVuY2UgaW4gZGlzdGFuY2UgZnJvbSB0aGUgZ3JvdW5kIHRydXRoIG9mIGVhY2ggcG9pbnQgKGluIE1ldGVycykgYW5kIHRoZW4gY2FsY3VsYXRlIHRoZSByb290IG1lYW4gc3F1YXJlIGVycm9yIChSTVNFKSBmb3IgYWxsIG9mIHRoZSBwb2ludHMuCgpGaXJzdCwgd2UnbGwgaW1wbGVtZW50IGEgZnVuY3Rpb24gdG8gY2FsY3VsYXRlIHRoZSBkaXN0YW5jZSBkaWZmZXJlbmNlLCBhbmQgdGhlbiBhIGZ1Y250aW9uIGZvciBjYWxjdWxhdGlvbiByb290IG1lYW4gc3F1YXJlIGVycm9yLgoKVGhlIGZvcm11bGF0IGZvciBSTVNFIGlzIGFzIGZvbGxvd3M6CiRSTVNFID0gXHNxcnR7XGZyYWN7MX17bn1cc3VtX3t0PTF9XntufWVfdF4yfSQKCmBgYHtyIGZ1bmNzfQpkaXN0X2RpZmYgPC0gZnVuY3Rpb24oZXhwZWN0ZWRfbG9uLCBleHBlY3RlZF9sYXQsIGFjdHVhbF9sb24sIGFjdHVhbF9sYXQpewogICMgQWNjZXB0cyBWZWN0b3Igb2YgRXhwZWN0ZWQgTGF0L0xvbgogICMgQW5kIFZlY3RvciBvZiBBY3R1YWwgTGF0L0xvbgogIGRpZmZzIDwtIHZlY3RvcignbnVtZXJpYycsIGxlbmd0aChleHBlY3RlZF9sb24pKQogIGZvciAoaSBpbiBzZXFfYWxvbmcoZGlmZnMpKXsKICAgIGRpZmZzW2ldIDwtIEltYXA6OmdkaXN0KGV4cGVjdGVkX2xvbltpXSwgZXhwZWN0ZWRfbGF0W2ldLCBhY3R1YWxfbG9uW2ldLCBhY3R1YWxfbGF0W2ldLCB1bml0cyA9ICdtJykKICB9CiAgIyBSZXR1cm4gVmVjdG9yIG9mIERpc3RhbmNlIERpZmZlcmVuY2UKICByZXR1cm4oZGlmZnMpCn0KCnJtc2UgPC0gZnVuY3Rpb24odmVjdG9yKXsKICAjIEFjY2VwdHMgYSBWZWN0b3Igb2YgRGlmZmVyZW5jZXMgZnJvbSBFeHBlY3RlZAogIG4gPSBsZW5ndGgodmVjdG9yKQogIHNxID0gdmVjdG9yIF4gMgogIHNtID0gc3VtKHNxL24pCiAgcm9vdCA9IHNxcnQoc20pCiAgcmV0dXJuKHJvb3QpCn0KYGBgCgoKCgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCBHZW9jb2RlcnMiCmF1dGhvcjogIkJyYW5zb24gRm94IgpkYXRlOiAnKGByIGZvcm1hdChTeXMudGltZSgpLCAiJUIgJWQsICVZIilgKScKb3V0cHV0OiAKICBnaXRodWJfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyMgSW50cm9kdWN0aW9uClRoaXMgbm90ZWJvb2sgdXNlcyA3IGRpZmZlcmVudCBhdmFpbGFibGUgc2VydmljZXMgdG8gZ2VvY29kZSBkYXRhLCBtZWFzdXJpbmcgYm90aCB0aGUgcmVzcG9uc2UgYW5kIHRoZSBhY2N1cmFjeSBvZiB0aGUgcmVzcG9uc2UuCgojIyBEZXBlbmRlbmNpZXMKVGhlc2UgcGFja2FnZXMgYXJlIHJlcXVpcmVkIGZvciB0aGUgYW5hbHlzaXMgaW4gdGhpcyBub3RlYm9vay4KYGBge3IgZGVwZW5kZW5jaWVzfQpsaWJyYXJ5KGh0dHIpCmxpYnJhcnkoZHBseXIpCmxpYnJhcnkoZ2x1ZSkKbGlicmFyeShtYWdyaXR0cikKbGlicmFyeShJbWFwKQpsaWJyYXJ5KHlhbWwpCmxpYnJhcnkoY2Vuc3VzeHkpCmBgYAoKIyMjIExvYWQgR2VvY29kZXJzCldlIHdpbGwgYWxzbyBsb2FkIHRoZSBnZW9jb2RpbmcgaW1wbGVtZW50YXRpb25zIHdlIHdyb3RlLgpgYGB7ciBsb2FkLWdlb2NvZGVyc30KIyBTaW5nbGUgTGluZSBHZW9jb2RlcnMKc291cmNlKCcuLi9zb3VyY2Uvc2luZ2xlTGluZS5SJykKIyBCYXRjaCBHZW9jb2RlcnMKc291cmNlKCcuLi9zb3VyY2UvYmluZy5SJykKc291cmNlKCcuLi9zb3VyY2UvZXNyaS5SJykKc291cmNlKCcuLi9zb3VyY2UvZ2VvY29kaW8uUicpCnNvdXJjZSgnLi4vc291cmNlL2hlcmUuUicpCnNvdXJjZSgnLi4vc291cmNlL3RvbXRvbS5SJykKYGBgCgojIyMgTG9hZCBDcmVkZW50aWFscwpXZSBuZWVkIHRvIGxvYWQgdGhlIEFQSS1LZXlzIGZvciB0aGVzZSBzZXJ2aWNlcwpgYGB7ciBrZXlzfQpjcmVkcyA9IHlhbWw6OnJlYWRfeWFtbCgnLi4vY3JlZHMueW1sJykKYGBgCgojIyBMb2FkIERhdGEKTmV4dCwgd2UnbGwgbG9hZCB0aGUgZGF0YSB0byBiZSBnZW9jb2RlZC4gV2UgbmVlZCB0byBhZGQgdGhlIGNpdHkvc3RhdGUgc3VmZml4LgpgYGB7ciBsb2FkLWRhdGF9CiMgTG9hZCB0aGUgR3JvdW5kIFRydXRoCmxvY2FsIDwtIHJlYWQuY3N2KCcuLi9kYXRhL1NUTF9DUklNRV9Ib21pY2lkZXNfbG9jYWxfaWQuY3N2Jywgc3RyaW5nc0FzRmFjdG9ycyA9IEZBTFNFKQphZGRyZXNzZXMgPC0gcmVhZC5jc3YoJy4uL2RhdGEvU1RMX0NSSU1FX0hvbWljaWRlcy5jc3YnLCBzdHJpbmdzQXNGYWN0b3JzID0gRkFMU0UpJGFkZHJlc3Nfbm9ybSAlPiUKICBwYXN0ZTAoJyBTdC4gTG91aXMsIE1PJykKYGBgCgojIyBFeGVjdXRlIEdlb2NvZGVycwpOb3csIHdlJ2xsIHJ1biB0aGUgZ2VvY29kZXJzIGFuZCByZWNvcmQgYSB0aW1lLgpgYGB7ciBnZW9jb2RlfQojIFNpbmdsZSBMaW5lIH5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+CkVzcmlfU2luZ2xlX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEVzcmlfU2luZ2xlIDwtIGJhdGNoKGFkZHJlc3NlcywgQXJjTWFwLCB0b2tlbiA9IGNyZWRzJGVzcmkpCn0pCnNhdmUoRXNyaV9TaW5nbGUsIEVzcmlfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Fc3JpX1NpbmdsZS5yZGEnKQojCkdvb2dsZV9TaW5nbGVfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgR29vZ2xlX1NpbmdsZSA8LSBiYXRjaChhZGRyZXNzZXMsIEdvb2dsZU1hcHMsIGtleSA9IGNyZWRzJGdvb2dsZSkKfSkKc2F2ZShHb29nbGVfU2luZ2xlLCBHb29nbGVfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Hb29nbGVfU2luZ2xlLnJkYScpCiMKSEVSRV9TaW5nbGVfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgSEVSRV9TaW5nbGUgPC0gYmF0Y2goYWRkcmVzc2VzLCBIRVJFLCBrZXkgPSBjcmVkcyRoZXJlKQp9KQpzYXZlKEhFUkVfU2luZ2xlLCBIRVJFX1NpbmdsZV9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvSEVSRV9TaW5nbGUucmRhJykKIwpPcGVuQ2FnZV9TaW5nbGVfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgT3BlbkNhZ2VfU2luZ2xlIDwtIGJhdGNoKGFkZHJlc3NlcywgT3BlbkNhZ2UsIGtleSA9IGNyZWRzJG9wZW5jYWdlKQp9KQpzYXZlKE9wZW5DYWdlX1NpbmdsZSwgT3BlbkNhZ2VfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9PcGVuQ2FnZV9TaW5nbGUucmRhJykKIwpUb21Ub21fU2luZ2xlX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIFRvbVRvbV9TaW5nbGUgPC0gYmF0Y2goYWRkcmVzc2VzLCBUb21Ub20sIGtleSA9IGNyZWRzJHRvbXRvbSkKfSkKc2F2ZShUb21Ub21fU2luZ2xlLCBUb21Ub21fU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Ub21Ub21fU2luZ2xlLnJkYScpCiMKR2VvY29kaW9fU2luZ2xlX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEdlb2NvZGlvX1NpbmdsZSA8LSBiYXRjaChhZGRyZXNzZXMsIEdlb2NvZGlvLCBrZXkgPSBjcmVkcyRnZW9jb2RpbykKfSkKc2F2ZShHZW9jb2Rpb19TaW5nbGUsIEdlb2NvZGlvX1NpbmdsZV9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvR2VvY29kaW9fU2luZ2xlLnJkYScpCiMKQ2Vuc3VzX1NpbmdsZV9UaW1lIDwtIHN5c3RlbS50aW1lKHsKICBDZW5zdXNfU2luZ2xlIDwtIGJhdGNoKGFkZHJlc3NlcywgQ2Vuc3VzQnVyZWF1KQp9KQpzYXZlKENlbnN1c19TaW5nbGUsIENlbnN1c19TaW5nbGVfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL0NlbnN1c19TaW5nbGUucmRhJykKIwpCaW5nX1NpbmdsZV9UaW1lIDwtIHN5c3RlbS50aW1lKHsKICBCaW5nX1NpbmdsZSA8LSBiYXRjaChhZGRyZXNzZXMsIEJpbmcsIGtleSA9IGNyZWRzJGJpbmcpCn0pCnNhdmUoQmluZ19TaW5nbGUsIEJpbmdfU2luZ2xlX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9CaW5nX1NpbmdsZS5yZGEnKQoKIyBCYXRjaCB+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fgpCaW5nX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEJpbmdfQmF0Y2ggPC0gYmluZyhhZGRyZXNzZXMsIGNyZWRzJGJpbmcpCn0pCnNhdmUoQmluZ19CYXRjaCwgQmluZ19CYXRjaF9UaW1lLCBmaWxlID0gJy4uL3Jlc3VsdHMvQmluZ19CYXRjaC5yZGEnKQojCkVzcmlfQmF0Y2hfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgRXNyaV9CYXRjaCA8LSBlc3JpKGFkZHJlc3NlcywgY3JlZHMkZXNyaSkKfSkKc2F2ZShFc3JpX0JhdGNoLCBFc3JpX0JhdGNoX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9Fc3JpX0JhdGNoLnJkYScpCiMKVG9tVG9tX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIFRvbVRvbV9CYXRjaCA8LSB0b210b20oYWRkcmVzc2VzLCBjcmVkcyR0b210b20pCn0pCnNhdmUoVG9tVG9tX0JhdGNoLCBUb21Ub21fQmF0Y2hfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL1RvbVRvbV9CYXRjaC5yZGEnKQojCkdlb2NvZGlvX0JhdGNoX1RpbWUgPC0gc3lzdGVtLnRpbWUoewogIEdlb2NvZGlvX0JhdGNoIDwtIGdlb2NvZGlvKGFkZHJlc3NlcywgY3JlZHMkZ2VvY29kaW8pCn0pCnNhdmUoR2VvY29kaW9fQmF0Y2gsIEdlb2NvZGlvX0JhdGNoX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9HZW9jb2Rpb19CYXRjaC5yZGEnKQojCkNlbnN1c19CYXRjaF9UaW1lIDwtIHN5c3RlbS50aW1lKHsKICAjIGdldCB1c2FibGUgZGF0YSBmb3JtYXQKICBkZiA8LSByZWFkLmNzdignLi4vZGF0YS9TVExfQ1JJTUVfSG9taWNpZGVzLmNzdicsIHN0cmluZ3NBc0ZhY3RvcnMgPSBGQUxTRSkgJT4lCiAgICBtdXRhdGUoc3RhdGUgPSAnTU8nLCBjaXR5ID0gJ1N0LiBMb3VpcycpCiAgQ2Vuc3VzX0JhdGNoIDwtIGNlbnN1c3h5OjpjeHlfZ2VvY29kZShkZiwgYWRkcmVzc19ub3JtLCBjaXR5LCBzdGF0ZSwgb3V0cHV0ID0gJ3RpYmJsZScpCn0pCnNhdmUoQ2Vuc3VzX0JhdGNoLCBDZW5zdXNfQmF0Y2hfVGltZSwgZmlsZSA9ICcuLi9yZXN1bHRzL0NlbnN1c19CYXRjaC5yZGEnKQojCkhFUkVfQmF0Y2hfVGltZSA8LSBzeXN0ZW0udGltZSh7CiAgSEVSRV9CYXRjaCA8LSBoZXJlKGFkZHJlc3NlcywgY3JlZHMkaGVyZSkKfSkKc2F2ZShIRVJFX0JhdGNoLCBIRVJFX0JhdGNoX1RpbWUsIGZpbGUgPSAnLi4vcmVzdWx0cy9IRVJFX0JhdGNoLnJkYScpCmBgYAoKIyMjIEJ1aWxkIGEgRGF0YWZyYW1lCldlJ2xsIG5vdyBidWlsZCBhIGxhcmdlIGRhdGFmcmFtZSB3aXRoIGFsbCBvZiBvdXIgcmVzdWx0cwpgYGB7ciBidWlsZCBkYXRhZnJhbWV9CnNpbmdsZV90b19jb2wgPC0gZnVuY3Rpb24obGlzdCwgcHJlZml4KXsKICBsYXRzID0gc2FwcGx5KGxpc3QsIGZ1bmN0aW9uKHgpe3RyeUNhdGNoKHgkbGF0LCBlcnJvciA9IGZ1bmN0aW9uKGUpIHJldHVybihOQSkgKX0pCiAgbG9ucyA9IHNhcHBseShsaXN0LCBmdW5jdGlvbih4KXt0cnlDYXRjaCh4JGxvbiwgZXJyb3IgPSBmdW5jdGlvbihlKSByZXR1cm4oTkEpICl9KQogIGRmID0gZGF0YS5mcmFtZShzdHJpbmdzQXNGYWN0b3JzID0gRkFMU0UsCiAgICAgICAgICAgICAgICAgIGxhdCA9IGxhdHMsCiAgICAgICAgICAgICAgICAgIGxvbiA9IGxvbnMpCiAgCiAgbmFtZXMoZGYpIDwtIHBhc3RlMChwcmVmaXgsICcuJywgbmFtZXMoZGYpKQogIHJldHVybihkZikKfQoKYWxsX2dlb2NvZGVzIDwtIAogIGRhdGEuZnJhbWUoc3RyaW5nc0FzRmFjdG9ycyA9IEZBTFNFLAogICAgYWRkcmVzcyA9IHBhc3RlMChsb2NhbCRhZGRyZXNzX25vcm0sICcgU3QuIExvdWlzLCBNTycpLAogICAgdHJ1dGgubGF0ID0gbG9jYWwkZ3dfeSwKICAgIHRydXRoLmxvbiA9IGxvY2FsJGd3X3gsCiAgICBzaW5nbGVfdG9fY29sKEJpbmdfU2luZ2xlLCAnQmluZ1NpbmdsZScpLAogICAgc2luZ2xlX3RvX2NvbChFc3JpX1NpbmdsZSwgJ0VzcmlTaW5nbGUnKSwKICAgIHNpbmdsZV90b19jb2woR29vZ2xlX1NpbmdsZSwgJ0dvb2dsZScpLAogICAgc2luZ2xlX3RvX2NvbChIRVJFX1NpbmdsZSwgJ0hlcmVTaW5nbGUnKSwKICAgIHNpbmdsZV90b19jb2woT3BlbkNhZ2VfU2luZ2xlLCAnT3BlbkNhZ2UnKSwKICAgIHNpbmdsZV90b19jb2woVG9tVG9tX1NpbmdsZSwgJ1RvbVRvbVNpbmdsZScpLAogICAgc2luZ2xlX3RvX2NvbChDZW5zdXNfU2luZ2xlLCAnQ2Vuc3VzU2luZ2xlJyksCiAgICBzaW5nbGVfdG9fY29sKEdlb2NvZGlvX1NpbmdsZSwgJ0dlb2NvZGlvU2luZ2xlJykKKQoKIyBUb21Ub20KYWxsX2dlb2NvZGVzICU8PiUgCiAgbGVmdF9qb2luKAogICAgVG9tVG9tX0JhdGNoICU+JSAKICAgICAgZmlsdGVyKCFkdXBsaWNhdGVkKFRvbVRvbV9CYXRjaCRhZGRyZXNzKSkgJT4lCiAgICAgIHJlbmFtZShUb21Ub21CYXRjaC5sYXQgPSBsYXQsCiAgICAgICAgICAgICBUb21Ub21CYXRjaC5sb24gPSBsb24pCiAgICApCiMgQmluZwphbGxfZ2VvY29kZXMgJTw+JQogIGxlZnRfam9pbigKICAgIEJpbmdfQmF0Y2ggJT4lCiAgICAgIGZpbHRlcighZHVwbGljYXRlZChCaW5nX0JhdGNoJEdlb2NvZGVSZXF1ZXN0LkFkZHJlc3MuQWRkcmVzc0xpbmUpKSAlPiUKICAgICAgdHJhbnNtdXRlKGFkZHJlc3MgPSBHZW9jb2RlUmVxdWVzdC5BZGRyZXNzLkFkZHJlc3NMaW5lICU+JSAKICAgICAgICAgICAgICAgICAgZ3N1YignU3QuIExvdWlzJywnU3QuIExvdWlzLCBNTycsLiksCiAgICAgICAgICAgICAgICBCaW5nQmF0Y2gubGF0ID0gR2VvY29kZVJlc3BvbnNlLlBvaW50LkxhdGl0dWRlLAogICAgICAgICAgICAgICAgQmluZ0JhdGNoLmxvbiA9IEdlb2NvZGVSZXNwb25zZS5Qb2ludC5Mb25naXR1ZGUpCiAgKQoKIyAoT3JkZXJlZCBCYXRjaGVzKQphbGxfZ2VvY29kZXMgJTw+JQogIGNiaW5kKAogICAgQ2Vuc3VzX0JhdGNoICU+JQogICAgICB0cmFuc211dGUoQ2Vuc3VzQmF0Y2gubGF0ID0gbGF0LAogICAgICAgICAgICAgICAgQ2Vuc3VzQmF0Y2gubG9uID0gbG9uKSwKICAgIEdlb2NvZGlvX0JhdGNoICU+JQogICAgICB0cmFuc211dGUoR2VvY29kaW9CYXRjaC5sYXQgPSBsYXQsCiAgICAgICAgICAgICAgICBHZW9jb2Rpb0JhdGNoLmxvbiA9IGxuZyksCiAgICBFc3JpX0JhdGNoICU+JQogICAgICB0cmFuc211dGUoRXNyaUJhdGNoLmxhdCA9IHksCiAgICAgICAgICAgICAgICBFc3JpQmF0Y2gubG9uID0geCksCiAgICBIRVJFX0JhdGNoICU+JQogICAgICB0cmFuc211dGUoSGVyZUJhdGNoLmxhdCA9IGRpc3BsYXlMYXRpdHVkZSwKICAgICAgICAgICAgICAgIEhlcmVCYXRjaC5sb24gPSBkaXNwbGF5TG9uZ2l0dWRlKQogICAgKQpgYGAKCiMjIENvbXBhcmUgVGltaW5nClRvIGNvbXBhcmUgdGhlIHRpbWluZyBvZiB0aGVzZSBnZW9jb2RlcnM6CihUaGVzZSB3ZXJlIHJhbiBtdWx0aXBsZSB0aW1lcyB3aXRoIGxpdHRsZSB2YXJpYWJpbGl0eSBiZXR3ZWVuIHRyaWFscykKYGBge3IgdGltaW5nfQojIEdldCBhbmQgU29ydCBGYXN0ZXN0IFRpbWVzCnRpbWVzIDwtIGZ1bmN0aW9uKCl7CiAgdGltZV9vYmpzIDwtIGxzKGVudmlyID0gLkdsb2JhbEVudikgJT4lCiAgICBncmVwKCdUaW1lJyAsLix2YWx1ZSA9IFRSVUUpCiAgCiAgdGltZSA8LSBtZ2V0KHRpbWVfb2JqcywgZW52aXIgPSAuR2xvYmFsRW52KQogIHJlc3VsdHMgPSB2ZWN0b3IoJ251bWVyaWMnLCBsZW5ndGgodGltZSkpCiAgCiAgZm9yIChpIGluIHNlcV9hbG9uZyhyZXN1bHRzKSl7CiAgICByZXN1bHRzW2ldIDwtIHRpbWVbW2ldXVszXQogIH0KICBuYW1lcyhyZXN1bHRzKSA8LSBuYW1lcyh0aW1lKQogIAogIHJlc3VsdHMgJTw+JSBzb3J0CiAgCiAgcHJpbnQocmVzdWx0cykKfQp0aW1lcygpCmBgYAoKIyMgQ29tcGFyZSBNYXRjaCBSYXRlClRoaXMgaXMgdGhlIG51bWJlciBvZiByZXNwb25zZXMgb3V0IG9mIDE4MjIgYWRkcmVzc2VzIHN1Ym1pdHRlZC4gTm90ZSwgYW55IHZhbGlkIHJlc3BvbnNlIGlzIGNvdW50ZWQsIHJlZ2FyZGxlc3Mgb2YgYWNjdXJhY3kuCmBgYHtyIG1hdGNoLXJhdGV9CmdtciA8LSBmdW5jdGlvbih2ZWN0b3IpewogIDE4MjIgLSBzdW0oaXMubmEodmVjdG9yKSkKfQoKbGF0cyA9IG5hbWVzKGFsbF9nZW9jb2Rlcylbc2VxKGZyb20gPSAyLCB0byA9IDMwLCBieSA9IDIpXQpmb3IgKGkgaW4gbGF0cyl7CiAgcHJpbnQoaSAlPiUgZ3N1YignLmxhdCcsJycsLikpCiAgcHJpbnQoZ21yKGFsbF9nZW9jb2Rlc1tpXSkpCn0KYGBgCk5vdGUgdGhhdCBvdXIgZ3JvdW5kIHRydXRoIGlzIG5vdCBhcyB0aG9yb3VnaCBhcyB0aGUgY29tbWVyaWNhbCBnZW9jb2RlcnMgZXZlbiwgd2hpY2ggaXMgYSBzZXJpb3VzIGxpbWl0YXRpb24uIEhvd2V2ZXIsIHdlIHdpbGwgZmlsdGVyIHRoZSBkYXRhIGluIG9yZGVyIHRvIGFjY29tcGxpc2ggYSBmYWlyIGNvbXBhcmlzb24gb2Yga25vd24gbG9jYXRpb25zLgoKIyMgQ29tcGFyZSBBY2N1cmFjeQpJbiBvcmRlciB0byBjb21wYXJlIGFjY3VyYWN5LCB3ZSBmaXJzdCBjYWxjdWxhdGUgdGhlIGRpZmZlcmVuY2UgaW4gZGlzdGFuY2UgZnJvbSB0aGUgZ3JvdW5kIHRydXRoIG9mIGVhY2ggcG9pbnQgKGluIE1ldGVycykgYW5kIHRoZW4gY2FsY3VsYXRlIHRoZSByb290IG1lYW4gc3F1YXJlIGVycm9yIChSTVNFKSBmb3IgYWxsIG9mIHRoZSBwb2ludHMuCgpGaXJzdCwgd2UnbGwgaW1wbGVtZW50IGEgZnVuY3Rpb24gdG8gY2FsY3VsYXRlIHRoZSBkaXN0YW5jZSBkaWZmZXJlbmNlLCBhbmQgdGhlbiBhIGZ1Y250aW9uIGZvciBjYWxjdWxhdGlvbiByb290IG1lYW4gc3F1YXJlIGVycm9yLgoKVGhlIGZvcm11bGF0IGZvciBSTVNFIGlzIGFzIGZvbGxvd3M6CiRSTVNFID0gXHNxcnR7XGZyYWN7MX17bn1cc3VtX3t0PTF9XntufWVfdF4yfSQKCmBgYHtyIGZ1bmNzfQpkaXN0X2RpZmYgPC0gZnVuY3Rpb24oZXhwZWN0ZWRfbG9uLCBleHBlY3RlZF9sYXQsIGFjdHVhbF9sb24sIGFjdHVhbF9sYXQpewogICMgQWNjZXB0cyBWZWN0b3Igb2YgRXhwZWN0ZWQgTGF0L0xvbgogICMgQW5kIFZlY3RvciBvZiBBY3R1YWwgTGF0L0xvbgogICMgUmVwbGFjZSBOQXMKICBhY3R1YWxfbG9uICU8PiUgc2FwcGx5KGZ1bmN0aW9uKHgpewogICAgaWYoaXMubmEoeCkpewogICAgICByZXR1cm4oMCkKICAgIH1lbHNlewogICAgICByZXR1cm4oeCkKICAgIH0KICB9KQogIGFjdHVhbF9sYXQgJTw+JSBzYXBwbHkoZnVuY3Rpb24oeCl7CiAgICBpZihpcy5uYSh4KSl7CiAgICAgIHJldHVybigwKQogICAgfWVsc2V7CiAgICAgIHJldHVybih4KQogICAgfQogIH0pCiAgCiAgZGlmZnMgPC0gdmVjdG9yKCdudW1lcmljJywgbGVuZ3RoKGV4cGVjdGVkX2xvbikpCiAgZm9yIChpIGluIHNlcV9hbG9uZyhkaWZmcykpewogICAgZGlmZnNbaV0gPC0gSW1hcDo6Z2Rpc3QoZXhwZWN0ZWRfbG9uW2ldLCBleHBlY3RlZF9sYXRbaV0sIGFjdHVhbF9sb25baV0sIGFjdHVhbF9sYXRbaV0sIHVuaXRzID0gJ20nKQogIH0KICAjIFJldHVybiBWZWN0b3Igb2YgRGlzdGFuY2UgRGlmZmVyZW5jZQogIHJldHVybihkaWZmcykKfQoKcm1zZSA8LSBmdW5jdGlvbih2ZWN0b3IpewogICMgQWNjZXB0cyBhIFZlY3RvciBvZiBEaWZmZXJlbmNlcyBmcm9tIEV4cGVjdGVkCiAgbiA9IGxlbmd0aCh2ZWN0b3IpCiAgc3EgPSB2ZWN0b3IgXiAyCiAgc20gPSBzdW0oc3EvbikKICByb290ID0gc3FydChzbSkKICByZXR1cm4ocm9vdCkKfQoKYGBgCldlIGFsc28gbmVlZCB0byBjcmVhdGUgYSBkYXRhc2V0IHRoYXQgd2UgY2FuIGZhaXJseSBjb21wYXJlZCB0byB0aGUgZ3JvdW5kIHRydXRoLCBzbyB3ZSdsbCByZW1vdmUgdGhlIE5BcyBmcm9tIG91ciBncm91bmQgdHJ1dGguCgpgYGB7cn0KdHJ1dGggPC0gZHBseXI6OmZpbHRlcihhbGxfZ2VvY29kZXMsICFpcy5uYShhbGxfZ2VvY29kZXMkdHJ1dGgubGF0KSkKYGBgCgpOb3cgdG8gcnVuIHRoZSBhbmFseXNpcyBvZiBhY2N1cmFjeToKYGBge3J9CnRydXRoLmxhdCA9IHRydXRoJHRydXRoLmxhdAp0cnV0aC5sb24gPSB0cnV0aCR0cnV0aC5sb24KbGF0cyA9IG5hbWVzKHRydXRoKVtzZXEoZnJvbSA9IDQsIHRvID0gMzAsIGJ5ID0gMildCmxvbnMgPSBuYW1lcyh0cnV0aClbc2VxKGZyb20gPSA1LCB0byA9IDMxLCBieSA9IDIpXQoKZm9yIChpIGluIHNlcV9hbG9uZyhsYXRzKSl7CiAgcmVzID0gZGlzdF9kaWZmKHRydXRoLmxvbiwgdHJ1dGgubGF0LCB0cnV0aFtbbG9uc1tpXV1dLCB0cnV0aFtbbGF0c1tpXV1dKSAlPiUKICAgIHJtc2UKICAKICBwcmludChsYXRzW2ldICU+JSBnc3ViKCcubGF0JywnJywuKSkKICBwcmludChyZXMpCn0KCiMgUmVtb3ZpbmcgdGhlIE5BcyBpbnN0ZWFkIG9mIE1ha2luZyAwLi4uLiBPdGhlcndpc2UgcmFkaWNhbCBjZW5zdXMgcmVzdWx0cwpgYGAKCg==</div>
 
 
 

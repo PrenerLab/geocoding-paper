@@ -132,16 +132,107 @@ save(HERE_Batch, HERE_Batch_Time, file = '../results/HERE_Batch.rda')
 ### Build a Dataframe
 We'll now build a large dataframe with all of our results
 ```{r build dataframe}
+single_to_col <- function(list, prefix){
+  lats = sapply(list, function(x){tryCatch(x$lat, error = function(e) return(NA) )})
+  lons = sapply(list, function(x){tryCatch(x$lon, error = function(e) return(NA) )})
+  df = data.frame(stringsAsFactors = FALSE,
+                  lat = lats,
+                  lon = lons)
+  
+  names(df) <- paste0(prefix, '.', names(df))
+  return(df)
+}
 
+all_geocodes <- 
+  data.frame(stringsAsFactors = FALSE,
+    address = paste0(local$address_norm, ' St. Louis, MO'),
+    truth.lat = local$gw_y,
+    truth.lon = local$gw_x,
+    single_to_col(Bing_Single, 'BingSingle'),
+    single_to_col(Esri_Single, 'EsriSingle'),
+    single_to_col(Google_Single, 'Google'),
+    single_to_col(HERE_Single, 'HereSingle'),
+    single_to_col(OpenCage_Single, 'OpenCage'),
+    single_to_col(TomTom_Single, 'TomTomSingle'),
+    single_to_col(Census_Single, 'CensusSingle'),
+    single_to_col(Geocodio_Single, 'GeocodioSingle')
+)
+
+# TomTom
+all_geocodes %<>% 
+  left_join(
+    TomTom_Batch %>% 
+      filter(!duplicated(TomTom_Batch$address)) %>%
+      rename(TomTomBatch.lat = lat,
+             TomTomBatch.lon = lon)
+    )
+# Bing
+all_geocodes %<>%
+  left_join(
+    Bing_Batch %>%
+      filter(!duplicated(Bing_Batch$GeocodeRequest.Address.AddressLine)) %>%
+      transmute(address = GeocodeRequest.Address.AddressLine %>% 
+                  gsub('St. Louis','St. Louis, MO',.),
+                BingBatch.lat = GeocodeResponse.Point.Latitude,
+                BingBatch.lon = GeocodeResponse.Point.Longitude)
+  )
+
+# (Ordered Batches)
+all_geocodes %<>%
+  cbind(
+    Census_Batch %>%
+      transmute(CensusBatch.lat = lat,
+                CensusBatch.lon = lon),
+    Geocodio_Batch %>%
+      transmute(GeocodioBatch.lat = lat,
+                GeocodioBatch.lon = lng),
+    Esri_Batch %>%
+      transmute(EsriBatch.lat = y,
+                EsriBatch.lon = x),
+    HERE_Batch %>%
+      transmute(HereBatch.lat = displayLatitude,
+                HereBatch.lon = displayLongitude)
+    )
 ```
 
 ## Compare Timing
 To compare the timing of these geocoders:
 (These were ran multiple times with little variability between trials)
 ```{r timing}
-sort()
+# Get and Sort Fastest Times
+times <- function(){
+  time_objs <- ls(envir = .GlobalEnv) %>%
+    grep('Time' ,.,value = TRUE)
+  
+  time <- mget(time_objs, envir = .GlobalEnv)
+  results = vector('numeric', length(time))
+  
+  for (i in seq_along(results)){
+    results[i] <- time[[i]][3]
+  }
+  names(results) <- names(time)
+  
+  results %<>% sort
+  
+  print(results)
+}
+times()
 ```
 
+## Compare Match Rate
+This is the number of responses out of 1822 addresses submitted. Note, any valid response is counted, regardless of accuracy.
+```{r match-rate}
+gmr <- function(vector){
+  1822 - sum(is.na(vector))
+}
+
+lats = names(all_geocodes)[seq(from = 2, to = 30, by = 2)]
+for (i in lats){
+  print(i %>% gsub('.lat','',.))
+  print(gmr(all_geocodes[i]))
+}
+```
+Note that our ground truth is not as thorough as the commerical geocoders even, which is a serious limitation. However, we will filter the data in order to accomplish a fair comparison of known locations.
 
 ## Compare Accuracy
 In order to compare accuracy, we first calculate the difference in distance from the ground truth of each point (in Meters) and then calculate the root mean square error (RMSE) for all of the points.
@@ -155,6 +246,22 @@ $RMSE = \sqrt{\frac{1}{n}\sum_{t=1}^{n}e_t^2}$
 dist_diff <- function(expected_lon, expected_lat, actual_lon, actual_lat){
   # Accepts Vector of Expected Lat/Lon
   # And Vector of Actual Lat/Lon
+  # Replace NAs
+  actual_lon %<>% sapply(function(x){
+    if(is.na(x)){
+      return(0)
+    }else{
+      return(x)
+    }
+  })
+  actual_lat %<>% sapply(function(x){
+    if(is.na(x)){
+      return(0)
+    }else{
+      return(x)
+    }
+  })
+  
   diffs <- vector('numeric', length(expected_lon))
   for (i in seq_along(diffs)){
     diffs[i] <- Imap::gdist(expected_lon[i], expected_lat[i], actual_lon[i], actual_lat[i], units = 'm')
@@ -171,9 +278,29 @@ rmse <- function(vector){
   root = sqrt(sm)
   return(root)
 }
+
+```
+We also need to create a dataset that we can fairly compared to the ground truth, so we'll remove the NAs from our ground truth.
+
+```{r}
+truth <- dplyr::filter(all_geocodes, !is.na(all_geocodes$truth.lat))
 ```
 
+Now to run the analysis of accuracy:
+```{r}
+truth.lat = truth$truth.lat
+truth.lon = truth$truth.lon
+lats = names(truth)[seq(from = 4, to = 30, by = 2)]
+lons = names(truth)[seq(from = 5, to = 31, by = 2)]
 
+for (i in seq_along(lats)){
+  res = dist_diff(truth.lon, truth.lat, truth[[lons[i]]], truth[[lats[i]]]) %>%
+    rmse
+  
+  print(lats[i] %>% gsub('.lat','',.))
+  print(res)
+}
 
-
+# Removing the NAs instead of Making 0.... Otherwise radical census results
+```
 
