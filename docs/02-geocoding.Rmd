@@ -1,0 +1,306 @@
+---
+title: "Test Geocoders"
+author: "Branson Fox"
+date: '(`r format(Sys.time(), "%B %d, %Y")`)'
+output: 
+  github_document: default
+  html_notebook: default
+---
+
+## Introduction
+This notebook uses 7 different available services to geocode data, measuring both the response and the accuracy of the response.
+
+## Dependencies
+These packages are required for the analysis in this notebook.
+```{r dependencies}
+library(httr)
+library(dplyr)
+library(glue)
+library(magrittr)
+library(Imap)
+library(yaml)
+library(censusxy)
+```
+
+### Load Geocoders
+We will also load the geocoding implementations we wrote.
+```{r load-geocoders}
+# Single Line Geocoders
+source('../source/singleLine.R')
+# Batch Geocoders
+source('../source/bing.R')
+source('../source/esri.R')
+source('../source/geocodio.R')
+source('../source/here.R')
+source('../source/tomtom.R')
+```
+
+### Load Credentials
+We need to load the API-Keys for these services
+```{r keys}
+creds = yaml::read_yaml('../creds.yml')
+```
+
+## Load Data
+Next, we'll load the data to be geocoded. We need to add the city/state suffix.
+```{r load-data}
+# Load the Ground Truth
+local <- read.csv('../data/STL_CRIME_Homicides_local_id.csv', stringsAsFactors = FALSE)
+addresses <- read.csv('../data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)$address_norm %>%
+  paste0(' St. Louis, MO')
+```
+
+## Execute Geocoders
+Now, we'll run the geocoders and record a time.
+```{r geocode}
+# Single Line ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Esri_Single_Time <- system.time({
+  Esri_Single <- batch(addresses, ArcMap, token = creds$esri)
+})
+save(Esri_Single, Esri_Single_Time, file = '../results/Esri_Single.rda')
+#
+Google_Single_Time <- system.time({
+  Google_Single <- batch(addresses, GoogleMaps, key = creds$google)
+})
+save(Google_Single, Google_Single_Time, file = '../results/Google_Single.rda')
+#
+HERE_Single_Time <- system.time({
+  HERE_Single <- batch(addresses, HERE, key = creds$here)
+})
+save(HERE_Single, HERE_Single_Time, file = '../results/HERE_Single.rda')
+#
+OpenCage_Single_Time <- system.time({
+  OpenCage_Single <- batch(addresses, OpenCage, key = creds$opencage)
+})
+save(OpenCage_Single, OpenCage_Single_Time, file = '../results/OpenCage_Single.rda')
+#
+TomTom_Single_Time <- system.time({
+  TomTom_Single <- batch(addresses, TomTom, key = creds$tomtom)
+})
+save(TomTom_Single, TomTom_Single_Time, file = '../results/TomTom_Single.rda')
+#
+Geocodio_Single_Time <- system.time({
+  Geocodio_Single <- batch(addresses, Geocodio, key = creds$geocodio)
+})
+save(Geocodio_Single, Geocodio_Single_Time, file = '../results/Geocodio_Single.rda')
+#
+Census_Single_Time <- system.time({
+  Census_Single <- batch(addresses, CensusBureau)
+})
+save(Census_Single, Census_Single_Time, file = '../results/Census_Single.rda')
+#
+Bing_Single_Time <- system.time({
+  Bing_Single <- batch(addresses, Bing, key = creds$bing)
+})
+save(Bing_Single, Bing_Single_Time, file = '../results/Bing_Single.rda')
+
+# Batch ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Bing_Batch_Time <- system.time({
+  Bing_Batch <- bing(addresses, creds$bing)
+})
+save(Bing_Batch, Bing_Batch_Time, file = '../results/Bing_Batch.rda')
+#
+Esri_Batch_Time <- system.time({
+  Esri_Batch <- esri(addresses, creds$esri)
+})
+save(Esri_Batch, Esri_Batch_Time, file = '../results/Esri_Batch.rda')
+#
+TomTom_Batch_Time <- system.time({
+  TomTom_Batch <- tomtom(addresses, creds$tomtom)
+})
+save(TomTom_Batch, TomTom_Batch_Time, file = '../results/TomTom_Batch.rda')
+#
+Geocodio_Batch_Time <- system.time({
+  Geocodio_Batch <- geocodio(addresses, creds$geocodio)
+})
+save(Geocodio_Batch, Geocodio_Batch_Time, file = '../results/Geocodio_Batch.rda')
+#
+Census_Batch_Time <- system.time({
+  # get usable data format
+  df <- read.csv('../data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE) %>%
+    mutate(state = 'MO', city = 'St. Louis')
+  Census_Batch <- censusxy::cxy_geocode(df, address_norm, city, state, output = 'tibble')
+})
+save(Census_Batch, Census_Batch_Time, file = '../results/Census_Batch.rda')
+#
+HERE_Batch_Time <- system.time({
+  HERE_Batch <- here(addresses, creds$here)
+})
+save(HERE_Batch, HERE_Batch_Time, file = '../results/HERE_Batch.rda')
+```
+
+### Build a Dataframe
+We'll now build a large dataframe with all of our results
+```{r build dataframe}
+single_to_col <- function(list, prefix){
+  lats = sapply(list, function(x){tryCatch(x$lat, error = function(e) return(NA) )})
+  lons = sapply(list, function(x){tryCatch(x$lon, error = function(e) return(NA) )})
+  df = data.frame(stringsAsFactors = FALSE,
+                  lat = lats,
+                  lon = lons)
+  
+  names(df) <- paste0(prefix, '.', names(df))
+  return(df)
+}
+
+all_geocodes <- 
+  data.frame(stringsAsFactors = FALSE,
+    address = paste0(local$address_norm, ' St. Louis, MO'),
+    truth.lat = local$gw_y,
+    truth.lon = local$gw_x,
+    single_to_col(Bing_Single, 'BingSingle'),
+    single_to_col(Esri_Single, 'EsriSingle'),
+    single_to_col(Google_Single, 'Google'),
+    single_to_col(HERE_Single, 'HereSingle'),
+    single_to_col(OpenCage_Single, 'OpenCage'),
+    single_to_col(TomTom_Single, 'TomTomSingle'),
+    single_to_col(Census_Single, 'CensusSingle'),
+    single_to_col(Geocodio_Single, 'GeocodioSingle')
+)
+
+# TomTom
+all_geocodes %<>% 
+  left_join(
+    TomTom_Batch %>% 
+      filter(!duplicated(TomTom_Batch$address)) %>%
+      rename(TomTomBatch.lat = lat,
+             TomTomBatch.lon = lon)
+    )
+# Bing
+all_geocodes %<>%
+  left_join(
+    Bing_Batch %>%
+      filter(!duplicated(Bing_Batch$GeocodeRequest.Address.AddressLine)) %>%
+      transmute(address = GeocodeRequest.Address.AddressLine %>% 
+                  gsub('St. Louis','St. Louis, MO',.),
+                BingBatch.lat = GeocodeResponse.Point.Latitude,
+                BingBatch.lon = GeocodeResponse.Point.Longitude)
+  )
+
+# (Ordered Batches)
+all_geocodes %<>%
+  cbind(
+    Census_Batch %>%
+      transmute(CensusBatch.lat = lat,
+                CensusBatch.lon = lon),
+    Geocodio_Batch %>%
+      transmute(GeocodioBatch.lat = lat,
+                GeocodioBatch.lon = lng),
+    Esri_Batch %>%
+      transmute(EsriBatch.lat = y,
+                EsriBatch.lon = x),
+    HERE_Batch %>%
+      transmute(HereBatch.lat = displayLatitude,
+                HereBatch.lon = displayLongitude)
+    )
+```
+
+## Compare Timing
+To compare the timing of these geocoders:
+(These were ran multiple times with little variability between trials)
+```{r timing}
+# Get and Sort Fastest Times
+times <- function(){
+  time_objs <- ls(envir = .GlobalEnv) %>%
+    grep('Time' ,.,value = TRUE)
+  
+  time <- mget(time_objs, envir = .GlobalEnv)
+  results = vector('numeric', length(time))
+  
+  for (i in seq_along(results)){
+    results[i] <- time[[i]][3]
+  }
+  names(results) <- names(time)
+  
+  results %<>% sort
+  
+  print(results)
+}
+times()
+```
+
+## Compare Match Rate
+This is the number of responses out of 1822 addresses submitted. Note, any valid response is counted, regardless of accuracy.
+```{r match-rate}
+gmr <- function(vector){
+  1822 - sum(is.na(vector))
+}
+
+lats = names(all_geocodes)[seq(from = 2, to = 30, by = 2)]
+for (i in lats){
+  print(i %>% gsub('.lat','',.))
+  print(gmr(all_geocodes[i]))
+}
+```
+Note that our ground truth is not as thorough as the commerical geocoders even, which is a serious limitation. However, we will filter the data in order to accomplish a fair comparison of known locations.
+
+## Compare Accuracy
+In order to compare accuracy, we first calculate the difference in distance from the ground truth of each point (in Meters) and then calculate the root mean square error (RMSE) for all of the points.
+
+First, we'll implement a function to calculate the distance difference, and then a fucntion for calculation root mean square error.
+
+The formulat for RMSE is as follows:
+$RMSE = \sqrt{\frac{1}{n}\sum_{t=1}^{n}e_t^2}$
+
+```{r funcs}
+dist_diff <- function(expected_lon, expected_lat, actual_lon, actual_lat){
+  # Accepts Vector of Expected Lat/Lon
+  # And Vector of Actual Lat/Lon
+  # Replace NAs
+  actual_lon %<>% sapply(function(x){
+    if(is.na(x)){
+      return(0)
+    }else{
+      return(x)
+    }
+  })
+  actual_lat %<>% sapply(function(x){
+    if(is.na(x)){
+      return(0)
+    }else{
+      return(x)
+    }
+  })
+  
+  diffs <- vector('numeric', length(expected_lon))
+  for (i in seq_along(diffs)){
+    diffs[i] <- Imap::gdist(expected_lon[i], expected_lat[i], actual_lon[i], actual_lat[i], units = 'm')
+  }
+  # Return Vector of Distance Difference
+  return(diffs)
+}
+
+rmse <- function(vector){
+  # Accepts a Vector of Differences from Expected
+  n = length(vector)
+  sq = vector ^ 2
+  sm = sum(sq/n)
+  root = sqrt(sm)
+  return(root)
+}
+
+```
+We also need to create a dataset that we can fairly compared to the ground truth, so we'll remove the NAs from our ground truth.
+
+```{r}
+truth <- dplyr::filter(all_geocodes, !is.na(all_geocodes$truth.lat))
+```
+
+Now to run the analysis of accuracy:
+```{r}
+truth.lat = truth$truth.lat
+truth.lon = truth$truth.lon
+lats = names(truth)[seq(from = 4, to = 30, by = 2)]
+lons = names(truth)[seq(from = 5, to = 31, by = 2)]
+
+for (i in seq_along(lats)){
+  res = dist_diff(truth.lon, truth.lat, truth[[lons[i]]], truth[[lats[i]]]) %>%
+    rmse
+  
+  print(lats[i] %>% gsub('.lat','',.))
+  print(res)
+}
+
+# Removing the NAs instead of Making 0.... Otherwise radical census results
+```
+
