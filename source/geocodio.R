@@ -28,19 +28,3 @@ geocodio <- function(addresses, key){
   return(parsed)
   
 }
-
-# Load Vector of Addresses
-data <- read.csv('data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)['address_norm']
-data <- simplify2array(data)
-data <- paste0(data, ' St. Louis, MO') # Add St. Louis Key (Some Blanks though...)
-addresses <- data
-
-# Load Key
-gkey <- yaml::read_yaml('creds.yml')$geocodio
-
-# Full Test Run
-gtime <- system.time({
-  gfull <- geocodio(addresses, gkey) 
-})
-
-save(gtime, gfull, file = 'results/geocodio.rda')

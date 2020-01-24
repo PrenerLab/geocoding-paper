@@ -69,20 +69,3 @@ esri <- function(addresses, key){
   
   return(parsed)
 }
-
-# Load Vector of Addresses
-data <- read.csv('data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)['address_norm']
-data <- simplify2array(data)
-data <- paste0(data, ' St. Louis, MO') # Add St. Louis Key (Some Blanks though...)
-addresses <- data
-
-# Load Key
-ekey <- yaml::read_yaml('creds.yml')$esri
-
-# Full Test Run
-etime <- system.time({
-  efull <- esri(addresses, ekey)
-})
-
-save(etime, efull, file = 'results/esri.rda')
-

@@ -1,8 +1,6 @@
 # Bing Geocoder
 library(httr);library(magrittr);library(dplyr)
 
-## NEED TO RERUN. Computer may have slept, affecting timing. The google single line was ~200 seconds faster
-
 # Bing (Batch 50 Free, 200K Enterprise)
 # Docs: https://docs.microsoft.com/en-us/bingmaps/spatial-data-services/geocode-dataflow-api/geocode-dataflow-walkthrough
 # This API is Asynchronous
@@ -10,8 +8,6 @@ library(httr);library(magrittr);library(dplyr)
 # 50 Entities Per Batch
 
 # Even with the Linear Implementation, We save 100-200 seconds from the singleline
-
-# Error handling is going to be a big deal. We only get one shot per 24hrs to get this whole thing right
 
 bing <- function(addresses, key){
   # Transform vector to schema
@@ -66,6 +62,7 @@ bing <- function(addresses, key){
     
     # Check on Status
     while(status == 'Pending'){
+      Sys.sleep(2)
       # Check Status
       GET(paste0(url, '/', id),
           query = list(
@@ -98,19 +95,3 @@ bing <- function(addresses, key){
   return(parsed)
   
 }
-
-# Load Vector of Addresses
-data <- read.csv('data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)['address_norm']
-data <- simplify2array(data)
-data <- paste0(data, ' St. Louis, MO') # Add St. Louis Key (Some Blanks though...)
-addresses <- data
-
-# Load Key
-bkey <- yaml::read_yaml('creds.yml')$bing
-
-# Full Test Run
-btime <- system.time({
-  bfull <- bing(addresses, bkey) 
-})
-
-save(btime, bfull, file = 'results/bing.rda')

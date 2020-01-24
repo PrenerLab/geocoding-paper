@@ -64,20 +64,3 @@ tomtom <- function(addresses, key){
   
   return(parsed)
 }
-
-
-# Load Vector of Addresses
-data <- read.csv('data/STL_CRIME_Homicides.csv', stringsAsFactors = FALSE)['address_norm']
-data <- simplify2array(data)
-data <- paste0(data, ' St. Louis, MO') # Add St. Louis Key (Some Blanks though...)
-addresses <- data
-
-# Load Key
-tkey <- yaml::read_yaml('creds.yml')$tomtom
-
-# Full Test Run
-ttime <- system.time({
-  tfull <- tomtom(addresses, tkey) 
-})
-
-save(ttime, tfull, file = 'results/tomtom.rda')
