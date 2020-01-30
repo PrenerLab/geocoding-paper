@@ -129,6 +129,15 @@ HERE_Batch_Time <- system.time({
 save(HERE_Batch, HERE_Batch_Time, file = '../results/HERE_Batch.rda')
 ```
 
+### Reload Results
+As to not re-geocode, we can reload the results
+```{r}
+for(i in list.files('../results')){
+  load(paste0('../results/', i))
+}
+```
+
+
 ### Build a Dataframe
 We'll now build a large dataframe with all of our results
 ```{r build dataframe}
@@ -244,23 +253,20 @@ $RMSE = \sqrt{\frac{1}{n}\sum_{t=1}^{n}e_t^2}$
 
 ```{r funcs}
 dist_diff <- function(expected_lon, expected_lat, actual_lon, actual_lat){
-  # Accepts Vector of Expected Lat/Lon
-  # And Vector of Actual Lat/Lon
-  # Replace NAs
-  actual_lon %<>% sapply(function(x){
-    if(is.na(x)){
-      return(0)
-    }else{
-      return(x)
-    }
-  })
-  actual_lat %<>% sapply(function(x){
-    if(is.na(x)){
-      return(0)
-    }else{
-      return(x)
-    }
-  })
+  # Accepts Vector of Expected Lat/Lon (Truth)
+  # And Vector of Actual Lat/Lon (Geocode)
+  # Remove NAs and Message
+  
+  # Limit to Valid Geocodes if Any Missing
+  if (any(is.na(actual_lon))){
+    no_geocode <- which(is.na(actual_lon))
+    expected_lon <- expected_lon[-no_geocode]
+    expected_lat <- expected_lat[-no_geocode]
+    actual_lon <- actual_lon[-no_geocode]
+    actual_lat <- actual_lat[-no_geocode]
+  }
+  
+  message(paste0('Calculating diffs for length:', length(expected_lon)))
   
   diffs <- vector('numeric', length(expected_lon))
   for (i in seq_along(diffs)){
@@ -274,7 +280,7 @@ rmse <- function(vector){
   # Accepts a Vector of Differences from Expected
   n = length(vector)
   sq = vector ^ 2
-  sm = sum(sq/n)
+  sm = sum(sq) / n
   root = sqrt(sm)
   return(root)
 }
