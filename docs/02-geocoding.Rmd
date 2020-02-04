@@ -310,3 +310,47 @@ for (i in seq_along(lats)){
 # Removing the NAs instead of Making 0.... Otherwise radical census results
 ```
 
+### Find the Point with the Most and Least Variability between geocoders
+```{r}
+point_difs <- 
+  apply(truth, 1, function(x){
+    if (any(is.na(x))){
+      return(NA)
+    }else{
+      difs <- vector('numeric', 14)
+      lats = names(x)[seq(from = 4, to = 30, by = 2)]
+      lons = names(x)[seq(from = 5, to = 31, by = 2)]
+      for (i in 1:14){
+        difs[i] <- Imap::gdist(as.numeric(x['truth.lon']), as.numeric(x['truth.lat']),
+                               as.numeric(x[lons[i]]), as.numeric(x[lats[i]]), units = 'm')
+      }
+      return(mean(difs)) # Return the Variance of Difference in Distance
+    }
+  })
+
+# pick the maximum by hand to avoid out of state errors
+max_w <- which(point_difs == sort(point_difs, decreasing = TRUE)[1])
+max_spread <- truth[max_w,]
+min_w <- which(point_difs == min(point_difs, na.rm = TRUE))
+min_spread <- truth[min_w,]
+
+# Make SF
+make_sf <- function(spread){
+  sf_objs <- vector('list', 15)
+  lats = names(spread)[seq(from = 2, to = 30, by = 2)]
+  lons = names(spread)[seq(from = 3, to = 31, by = 2)]
+  for( i in 1:15 ){
+  sf_objs[[i]] <- 
+    sf::st_as_sf(spread, coords = c(lons[i], lats[i]), crs = 4326) %>%
+    transmute(name = lats[i] %>% gsub('.lat', '', .))
+  }
+  out <- do.call(rbind, sf_objs)
+  return(out)
+}
+
+max_spread %<>% make_sf
+min_spread %<>% make_sf
+
+mapview(max_spread)
+mapview(min_spread)
+```
