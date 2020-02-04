@@ -310,3 +310,13 @@ for (i in seq_along(lats)){
 # Removing the NAs instead of Making 0.... Otherwise radical census results
 ```
 
+# Testing
+```{r}
+bingB_sf <- sf::st_as_sf(truth, coords = c('BingBatch.lon', 'BingBatch.lat'), crs = 4269) %>% sf::st_transform(4326) %>% transmute(name = 'BingBatch')
+bingS_sf <- sf::st_as_sf(truth, coords = c('BingSingle.lon', 'BingSingle.lat'), crs = 4326) %>% transmute(name = 'BingSingle')
+true_sf <- sf::st_as_sf(truth, coords = c('truth.lon', 'truth.lat'), crs = 4326) %>% transmute(name = 'True')
+library(mapview)
+bingB_true <- rbind(bingB_sf, true_sf)#, bingS_sf)
+mapview(bingB_true)
+```
+
