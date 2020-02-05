@@ -129,6 +129,15 @@ HERE_Batch_Time <- system.time({
 save(HERE_Batch, HERE_Batch_Time, file = '../results/HERE_Batch.rda')
 ```
 
+### Reload Results
+As to not re-geocode, we can reload the results
+```{r}
+for(i in list.files('../results')){
+  load(paste0('../results/', i))
+}
+```
+
+
 ### Build a Dataframe
 We'll now build a large dataframe with all of our results
 ```{r build dataframe}
@@ -244,23 +253,20 @@ $RMSE = \sqrt{\frac{1}{n}\sum_{t=1}^{n}e_t^2}$
 
 ```{r funcs}
 dist_diff <- function(expected_lon, expected_lat, actual_lon, actual_lat){
-  # Accepts Vector of Expected Lat/Lon
-  # And Vector of Actual Lat/Lon
-  # Replace NAs
-  actual_lon %<>% sapply(function(x){
-    if(is.na(x)){
-      return(0)
-    }else{
-      return(x)
-    }
-  })
-  actual_lat %<>% sapply(function(x){
-    if(is.na(x)){
-      return(0)
-    }else{
-      return(x)
-    }
-  })
+  # Accepts Vector of Expected Lat/Lon (Truth)
+  # And Vector of Actual Lat/Lon (Geocode)
+  # Remove NAs and Message
+  
+  # Limit to Valid Geocodes if Any Missing
+  if (any(is.na(actual_lon))){
+    no_geocode <- which(is.na(actual_lon))
+    expected_lon <- expected_lon[-no_geocode]
+    expected_lat <- expected_lat[-no_geocode]
+    actual_lon <- actual_lon[-no_geocode]
+    actual_lat <- actual_lat[-no_geocode]
+  }
+  
+  message(paste0('Calculating diffs for length:', length(expected_lon)))
   
   diffs <- vector('numeric', length(expected_lon))
   for (i in seq_along(diffs)){
@@ -274,7 +280,7 @@ rmse <- function(vector){
   # Accepts a Vector of Differences from Expected
   n = length(vector)
   sq = vector ^ 2
-  sm = sum(sq/n)
+  sm = sum(sq) / n
   root = sqrt(sm)
   return(root)
 }
@@ -304,3 +310,47 @@ for (i in seq_along(lats)){
 # Removing the NAs instead of Making 0.... Otherwise radical census results
 ```
 
+### Find the Point with the Most and Least Variability between geocoders
+```{r}
+point_difs <- 
+  apply(truth, 1, function(x){
+    if (any(is.na(x))){
+      return(NA)
+    }else{
+      difs <- vector('numeric', 14)
+      lats = names(x)[seq(from = 4, to = 30, by = 2)]
+      lons = names(x)[seq(from = 5, to = 31, by = 2)]
+      for (i in 1:14){
+        difs[i] <- Imap::gdist(as.numeric(x['truth.lon']), as.numeric(x['truth.lat']),
+                               as.numeric(x[lons[i]]), as.numeric(x[lats[i]]), units = 'm')
+      }
+      return(mean(difs)) # Return the Variance of Difference in Distance
+    }
+  })
+
+# pick the maximum by hand to avoid out of state errors
+max_w <- which(point_difs == sort(point_difs, decreasing = TRUE)[1])
+max_spread <- truth[max_w,]
+min_w <- which(point_difs == min(point_difs, na.rm = TRUE))
+min_spread <- truth[min_w,]
+
+# Make SF
+make_sf <- function(spread){
+  sf_objs <- vector('list', 15)
+  lats = names(spread)[seq(from = 2, to = 30, by = 2)]
+  lons = names(spread)[seq(from = 3, to = 31, by = 2)]
+  for( i in 1:15 ){
+  sf_objs[[i]] <- 
+    sf::st_as_sf(spread, coords = c(lons[i], lats[i]), crs = 4326) %>%
+    transmute(name = lats[i] %>% gsub('.lat', '', .))
+  }
+  out <- do.call(rbind, sf_objs)
+  return(out)
+}
+
+max_spread %<>% make_sf
+min_spread %<>% make_sf
+
+mapview(max_spread)
+mapview(min_spread)
+```
