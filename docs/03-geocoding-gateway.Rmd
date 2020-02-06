@@ -1,0 +1,45 @@
+---
+title: "Test Gateway's Geocoder"
+author: "Branson Fox"
+date: '(`r format(Sys.time(), "%B %d, %Y")`)'
+output: 
+  github_document: default
+  html_notebook: default
+---
+
+## Introduction
+
+## Dependencies
+These packages are required for the analysis in this notebook.
+
+```{r dependencies}
+# tidystl
+library(gateway)
+
+# tidyverse packages
+library(readr)
+
+# other packages
+library(here)
+```
+
+
+## Load Data
+Next, we'll load the data to be geocoded:
+
+```{r load-data}
+addresses <- read_csv(here("data", "STL_CRIME_Homicides.csv"))
+```
+
+## Build Geocoders
+
+```{r}
+geocoder <- gw_build_geocoder(style = "full", return = "coords")
+geocoder_s <- gw_build_geocoder(style = "short", return = "coords")
+geocoder_p <- gw_build_geocoder(style = "placename", return = "coords")
+```
+
+```{r}
+
+```
+
