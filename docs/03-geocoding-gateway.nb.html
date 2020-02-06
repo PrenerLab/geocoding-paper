@@ -1770,9 +1770,6 @@ library(readr)
 # other packages
 library(here)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaGVyZSgpIHN0YXJ0cyBhdCAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXJcbiJ9 -->
-<pre><code>here() starts at /Users/prenercg/GitHub/PrenerLab/geocoding-paper</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1804,23 +1801,55 @@ cols(
 <h2>Build Geocoders</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvY29kZXIgPC0gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSBcImZ1bGxcIiwgY2xhc3MgPSBcInRpYmJsZVwiLCByZXR1cm4gPSBcImNvb3Jkc1wiKVxuYGBgIn0= -->
-<pre class="r"><code>geocoder &lt;- gw_build_geocoder(style = &quot;full&quot;, class = &quot;tibble&quot;, return = &quot;coords&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvY29kZXIgPC0gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSBcImZ1bGxcIiwgcmV0dXJuID0gXCJjb29yZHNcIilcbmBgYCJ9 -->
+<pre class="r"><code>geocoder &lt;- gw_build_geocoder(style = &quot;full&quot;, return = &quot;coords&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSBcImZ1bGxcIiwgY2xhc3MgPSBcInRpYmJsZVwiLCByZXR1cm4gPSBcImNvb3Jkc1wiKSA6IFxuICB1bnVzZWQgYXJndW1lbnQgKGNsYXNzID0gXCJ0aWJibGVcIilcbiJ9 -->
-<pre><code>Error in gw_build_geocoder(style = &quot;full&quot;, class = &quot;tibble&quot;, return = &quot;coords&quot;) : 
-  unused argument (class = &quot;tibble&quot;)</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoidHJ5aW5nIFVSTCAnaHR0cHM6Ly93d3cuc3Rsb3Vpcy1tby5nb3YvZGF0YS91cGxvYWQvZGF0YS1maWxlcy9wYXJnZW9jZC56aXAnXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtemlwLWNvbXByZXNzZWQnIGxlbmd0aCA3NjgyMTc0IGJ5dGVzICg3LjMgTUIpXG49PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PVxuZG93bmxvYWRlZCA3LjMgTUJcbiJ9 -->
+<pre><code>trying URL 'https://www.stlouis-mo.gov/data/upload/data-files/pargeocd.zip'
+Content type 'application/x-zip-compressed' length 7682174 bytes (7.3 MB)
+==================================================
+downloaded 7.3 MB</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvY29kZXJfcyA8LSBnd19idWlsZF9nZW9jb2RlcihzdHlsZSA9IFwic2hvcnRcIiwgcmV0dXJuID0gXCJjb29yZHNcIilcbmBgYCJ9 -->
+<pre class="r"><code>geocoder_s &lt;- gw_build_geocoder(style = &quot;short&quot;, return = &quot;coords&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidHJ5aW5nIFVSTCAnaHR0cHM6Ly93d3cuc3Rsb3Vpcy1tby5nb3YvZGF0YS91cGxvYWQvZGF0YS1maWxlcy9wYXJnZW9jZC56aXAnXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtemlwLWNvbXByZXNzZWQnIGxlbmd0aCA3NjgyMTc0IGJ5dGVzICg3LjMgTUIpXG49PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PVxuZG93bmxvYWRlZCA3LjMgTUJcbiJ9 -->
+<pre><code>trying URL 'https://www.stlouis-mo.gov/data/upload/data-files/pargeocd.zip'
+Content type 'application/x-zip-compressed' length 7682174 bytes (7.3 MB)
+==================================================
+downloaded 7.3 MB</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvY29kZXJfcCA8LSBnd19idWlsZF9nZW9jb2RlcihzdHlsZSA9IFwicGxhY2VuYW1lXCIsIHJldHVybiA9IFwiY29vcmRzXCIpXG5gYGAifQ== -->
+<pre class="r"><code>geocoder_p &lt;- gw_build_geocoder(style = &quot;placename&quot;, return = &quot;coords&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidHJ5aW5nIFVSTCAnaHR0cHM6Ly9naXRodWIuY29tL3NsdS1vcGVuR0lTL1NUTF9HRU9DT0RFUl9QbGFjZW5hbWUvYXJjaGl2ZS9tYXN0ZXIuemlwJ1xuZG93bmxvYWRlZCAyMCBLQlxuIn0= -->
+<pre><code>trying URL 'https://github.com/slu-openGIS/STL_GEOCODER_Placename/archive/master.zip'
+downloaded 20 KB</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2F0ZXdheV90aW1lIDwtIHN5c3RlbS50aW1lKHtcbiAgZ2F0ZXdheSA8LSBnd19nZW9jb2RlKGFkZHJlc3NlcywgdHlwZSA9IFwiY29tcG9zaXRlLCBmdWxsXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICB2YXIgPSBhZGRyZXNzX25vcm0sIGNsYXNzID0gXCJ0aWJibGVcIixcbiAgICAgICAgICAgICAgICAgICAgICAgIGxvY2FsID0gZ2VvY29kZXIsIGxvY2FsX3Nob3J0ID0gZ2VvY29kZXJfcyxcbiAgICAgICAgICAgICAgICAgICAgICAgIGxvY2FsX3BsYWNlID0gZ2VvY29kZXJfcCwgdGhyZXNob2xkID0gOTApXG59KVxuYGBgIn0= -->
+<pre class="r"><code>gateway_time &lt;- system.time({
+  gateway &lt;- gw_geocode(addresses, type = &quot;composite, full&quot;,
+                        var = address_norm, class = &quot;tibble&quot;,
+                        local = geocoder, local_short = geocoder_s,
+                        local_place = geocoder_p, threshold = 90)
+})</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXhwZWN0ZWQgNCBwaWVjZXMuIE1pc3NpbmcgcGllY2VzIGZpbGxlZCB3aXRoIGBOQWAgaW4gMSByb3dzIFsxMF0uXG4ifQ== -->
+<pre><code>Expected 4 pieces. Missing pieces filled with `NA` in 1 rows [10].</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2F2ZShnYXRld2F5LCBnYXRld2F5X3RpbWUsIGZpbGUgPSBoZXJlKFwicmVzdWx0c1wiLCBcImdhdGV3YXkucmRhXCIpKVxuYGBgIn0= -->
+<pre class="r"><code>save(gateway, gateway_time, file = here(&quot;results&quot;, &quot;gateway.rda&quot;))</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCBHYXRld2F5J3MgR2VvY29kZXIiCmF1dGhvcjogIkJyYW5zb24gRm94IgpkYXRlOiAnKGByIGZvcm1hdChTeXMudGltZSgpLCAiJUIgJWQsICVZIilgKScKb3V0cHV0OiAKICBnaXRodWJfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyMgSW50cm9kdWN0aW9uCgojIyBEZXBlbmRlbmNpZXMKVGhlc2UgcGFja2FnZXMgYXJlIHJlcXVpcmVkIGZvciB0aGUgYW5hbHlzaXMgaW4gdGhpcyBub3RlYm9vay4KCmBgYHtyIGRlcGVuZGVuY2llc30KIyB0aWR5c3RsCmxpYnJhcnkoZ2F0ZXdheSkKCiMgdGlkeXZlcnNlIHBhY2thZ2VzCmxpYnJhcnkocmVhZHIpCgojIG90aGVyIHBhY2thZ2VzCmxpYnJhcnkoaGVyZSkKYGBgCgoKIyMgTG9hZCBEYXRhCk5leHQsIHdlJ2xsIGxvYWQgdGhlIGRhdGEgdG8gYmUgZ2VvY29kZWQ6CgpgYGB7ciBsb2FkLWRhdGF9CmFkZHJlc3NlcyA8LSByZWFkX2NzdihoZXJlKCJkYXRhIiwgIlNUTF9DUklNRV9Ib21pY2lkZXMuY3N2IikpCmBgYAoKIyMgQnVpbGQgR2VvY29kZXJzCgpgYGB7cn0KZ2VvY29kZXIgPC0gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSAiZnVsbCIsIHJldHVybiA9ICJjb29yZHMiKQpnZW9jb2Rlcl9zIDwtIGd3X2J1aWxkX2dlb2NvZGVyKHN0eWxlID0gInNob3J0IiwgcmV0dXJuID0gImNvb3JkcyIpCmdlb2NvZGVyX3AgPC0gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSAicGxhY2VuYW1lIiwgcmV0dXJuID0gImNvb3JkcyIpCmBgYAoKYGBge3J9CgpgYGAKCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdCBHYXRld2F5J3MgR2VvY29kZXIiCmF1dGhvcjogIkJyYW5zb24gRm94IgpkYXRlOiAnKGByIGZvcm1hdChTeXMudGltZSgpLCAiJUIgJWQsICVZIilgKScKb3V0cHV0OiAKICBnaXRodWJfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyMgSW50cm9kdWN0aW9uCgojIyBEZXBlbmRlbmNpZXMKVGhlc2UgcGFja2FnZXMgYXJlIHJlcXVpcmVkIGZvciB0aGUgYW5hbHlzaXMgaW4gdGhpcyBub3RlYm9vay4KCmBgYHtyIGRlcGVuZGVuY2llc30KIyB0aWR5c3RsCmxpYnJhcnkoZ2F0ZXdheSkKCiMgdGlkeXZlcnNlIHBhY2thZ2VzCmxpYnJhcnkocmVhZHIpCgojIG90aGVyIHBhY2thZ2VzCmxpYnJhcnkoaGVyZSkKYGBgCgoKIyMgTG9hZCBEYXRhCk5leHQsIHdlJ2xsIGxvYWQgdGhlIGRhdGEgdG8gYmUgZ2VvY29kZWQ6CgpgYGB7ciBsb2FkLWRhdGF9CmFkZHJlc3NlcyA8LSByZWFkX2NzdihoZXJlKCJkYXRhIiwgIlNUTF9DUklNRV9Ib21pY2lkZXMuY3N2IikpCmBgYAoKIyMgQnVpbGQgR2VvY29kZXJzCgpgYGB7cn0KZ2VvY29kZXIgPC0gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSAiZnVsbCIsIHJldHVybiA9ICJjb29yZHMiKQpnZW9jb2Rlcl9zIDwtIGd3X2J1aWxkX2dlb2NvZGVyKHN0eWxlID0gInNob3J0IiwgcmV0dXJuID0gImNvb3JkcyIpCmdlb2NvZGVyX3AgPC0gZ3dfYnVpbGRfZ2VvY29kZXIoc3R5bGUgPSAicGxhY2VuYW1lIiwgcmV0dXJuID0gImNvb3JkcyIpCmBgYAoKYGBge3J9CmdhdGV3YXlfdGltZSA8LSBzeXN0ZW0udGltZSh7CiAgZ2F0ZXdheSA8LSBnd19nZW9jb2RlKGFkZHJlc3NlcywgdHlwZSA9ICJjb21wb3NpdGUsIGZ1bGwiLAogICAgICAgICAgICAgICAgICAgICAgICB2YXIgPSBhZGRyZXNzX25vcm0sIGNsYXNzID0gInRpYmJsZSIsCiAgICAgICAgICAgICAgICAgICAgICAgIGxvY2FsID0gZ2VvY29kZXIsIGxvY2FsX3Nob3J0ID0gZ2VvY29kZXJfcywKICAgICAgICAgICAgICAgICAgICAgICAgbG9jYWxfcGxhY2UgPSBnZW9jb2Rlcl9wLCB0aHJlc2hvbGQgPSA5MCkKfSkKCnNhdmUoZ2F0ZXdheSwgZ2F0ZXdheV90aW1lLCBmaWxlID0gaGVyZSgicmVzdWx0cyIsICJnYXRld2F5LnJkYSIpKQpgYGAKCg==</div>
 
 
 

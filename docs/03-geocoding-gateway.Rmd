@@ -40,6 +40,13 @@ geocoder_p <- gw_build_geocoder(style = "placename", return = "coords")
 ```
 
 ```{r}
+gateway_time <- system.time({
+  gateway <- gw_geocode(addresses, type = "composite, full",
+                        var = address_norm, class = "tibble",
+                        local = geocoder, local_short = geocoder_s,
+                        local_place = geocoder_p, threshold = 90)
+})
 
+save(gateway, gateway_time, file = here("results", "gateway.rda"))
 ```
 
