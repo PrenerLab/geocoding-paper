@@ -8,11 +8,11 @@ output:
 ---
 
 ## Introduction
-This notebook uses 7 different available services to geocode data, measuring both the response and the accuracy of the response.
+This notebook uses 8 different available services to geocode data, measuring both the response and the accuracy of the response.
 
 ## Dependencies
 These packages are required for the analysis in this notebook.
-```{r dependencies}
+```{r dependencies, message=FALSE}
 library(httr)
 library(dplyr)
 library(glue)
@@ -52,7 +52,7 @@ addresses <- read.csv('../data/STL_CRIME_Homicides.csv', stringsAsFactors = FALS
 
 ## Execute Geocoders
 Now, we'll run the geocoders and record a time.
-```{r geocode}
+```{r geocode, eval=FALSE}
 # Single Line ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Esri_Single_Time <- system.time({
   Esri_Single <- batch(addresses, ArcMap, token = creds$esri)
@@ -351,6 +351,37 @@ make_sf <- function(spread){
 max_spread %<>% make_sf
 min_spread %<>% make_sf
 
-mapview(max_spread)
-mapview(min_spread)
 ```
+
+### Make Shapes of Various Point Spreads
+These are hand selected points to make interesting visual comparisons of geocoded results
+```{r}
+# Minimal Spread
+least_w <- which(point_difs == sort(point_difs, decreasing = FALSE)[1])
+least_spread <-
+  truth[least_w,] %>%
+  make_sf
+
+# mapview(least_spread)
+
+# Moderate Spread
+med_w <- which(point_difs == sort(point_difs, decreasing = TRUE)[40])
+med_spread <-
+  truth[med_w,] %>%
+  make_sf
+
+# mapview(med_spread)
+
+# Ridiculous Spread
+big_w <- which(point_difs == sort(point_difs, decreasing = TRUE)[6])
+big_spread <- 
+  truth[big_w,] %>%
+  make_sf
+
+# mapview(big_spread)
+
+# Export R Object
+save(least_spread, med_spread, big_spread, file = '../results/spread.rda')
+
+```
+
