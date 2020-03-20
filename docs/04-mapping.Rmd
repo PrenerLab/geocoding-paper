@@ -1,0 +1,35 @@
+---
+title: "Map Spreads"
+author: "Branson Fox"
+date: '(`r format(Sys.time(), "%B %d, %Y")`)'
+output: 
+  github_document: default
+  html_notebook: default
+---
+
+## Introduction
+
+## Dependencies
+These packages are required for the analysis in this notebook.
+
+```{r dependencies}
+# spatial packages
+library(sf)
+
+# other packages
+library(here)
+```
+
+
+## Load Data
+Next, we'll load the data to be geocoded:
+
+```{r load-data}
+load(here("results", "spread.rda"))
+```
+
+```{r}
+big_spread %>%
+  slice(which(row_number() %% 3 == 1)) -> big_spread
+```
+
