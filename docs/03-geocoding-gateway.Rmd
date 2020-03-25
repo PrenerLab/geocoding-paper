@@ -14,7 +14,9 @@ These packages are required for the analysis in this notebook.
 
 ```{r dependencies}
 # tidystl
+library(dplyr)
 library(gateway)
+library(stringr)
 
 # tidyverse packages
 library(readr)
@@ -38,6 +40,12 @@ geocoder <- gw_build_geocoder(style = "full", return = "coords")
 geocoder_s <- gw_build_geocoder(style = "short", return = "coords")
 geocoder_p <- gw_build_geocoder(style = "placename", return = "coords")
 ```
+
+```{r}
+# remove dashes
+geocoder_p <- mutate(geocoder_p, gw_name = str_replace_all(string = gw_name, pattern = "-", replacement = " "))
+```
+
 
 ```{r}
 gateway_time <- system.time({

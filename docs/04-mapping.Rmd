@@ -13,7 +13,11 @@ output:
 These packages are required for the analysis in this notebook.
 
 ```{r dependencies}
+# tidyverse packages
+library(dplyr)
+
 # spatial packages
+library(tigris)
 library(sf)
 
 # other packages
@@ -33,3 +37,60 @@ big_spread %>%
   slice(which(row_number() %% 3 == 1)) -> big_spread
 ```
 
+```{r}
+states <- states(cb = TRUE, class = "sf")
+
+states %>%
+  filter(as.numeric(GEOID) <= 56) %>%
+  filter(NAME != "Alaska") %>%
+  filter(NAME != "Hawaii") %>%
+  select(STUSPS, NAME) -> states
+
+states <- st_transform(states, crs = 102003)
+
+st_write(states, here("data", "spatial", "US_BOUNDARY_States", "US_BOUNDARY_States.shp"), delete_dsn = TRUE)
+```
+
+```{r}
+places <- places(state = 29, cb = TRUE, class = "sf") %>%
+  select(NAME)
+
+places <- st_transform(places, crs = 102003)
+
+st_write(places, here("data", "spatial", "MO_BOUNDARY_Places", "MO_BOUNDARY_Places.shp"), delete_dsn = TRUE)
+```
+
+```{r}
+roads <- primary_roads(class = "sf") %>%
+  filter(RTTYP == "I") %>%
+  filter(FULLNAME %in% c("I- 44", "I- 64", "I- 70", "I- 55", "I- 170", "I- 270"))
+
+roads <- st_transform(roads, crs = 102003)
+
+st_write(roads, here("data", "spatial", "US_TRANS_Highways", "US_TRANS_Highways.shp"), delete_dsn = TRUE)
+```
+
+
+```{r}
+big_spread <- st_transform(big_spread, crs = 102003)
+big_spread_truth <- filter(big_spread, name == "truth")
+  
+st_write(big_spread, here("results", "spatial", "big_spread", "big_spread.shp"), delete_dsn = TRUE)
+st_write(big_spread_truth, here("results", "spatial", "big_spread", "big_spread_truth.shp"), delete_dsn = TRUE)
+```
+
+```{r}
+med_spread <- st_transform(med_spread, crs = 102003)
+med_spread_truth <- filter(med_spread, name == "truth")
+  
+st_write(med_spread, here("results", "spatial", "med_spread", "med_spread.shp"), delete_dsn = TRUE)
+st_write(med_spread_truth, here("results", "spatial", "med_spread", "med_spread_truth.shp"), delete_dsn = TRUE)
+```
+
+```{r}
+least_spread <- st_transform(least_spread, crs = 102003)
+least_spread_truth <- filter(least_spread, name == "truth")
+  
+st_write(least_spread, here("results", "spatial", "least_spread", "least_spread.shp"), delete_dsn = TRUE)
+st_write(least_spread_truth, here("results", "spatial", "least_spread", "least_spread_truth.shp"), delete_dsn = TRUE)
+```

@@ -1746,7 +1746,7 @@ summary {
 
 <h1 class="title toc-ignore">Map Spreads</h1>
 <h4 class="author">Branson Fox</h4>
-<h4 class="date">(March 20, 2020)</h4>
+<h4 class="date">(March 25, 2020)</h4>
 
 </div>
 
@@ -1760,15 +1760,28 @@ summary {
 <p>These packages are required for the analysis in this notebook.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBzcGF0aWFsIHBhY2thZ2VzXG5saWJyYXJ5KHNmKVxuYGBgIn0= -->
-<pre class="r"><code># spatial packages
-library(sf)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aWR5dmVyc2UgcGFja2FnZXNcbmxpYnJhcnkoZHBseXIpXG5gYGAifQ== -->
+<pre class="r"><code># tidyverse packages
+library(dplyr)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTGlua2luZyB0byBHRU9TIDMuNy4yLCBHREFMIDIuNC4yLCBQUk9KIDUuMi4wXG4ifQ== -->
-<pre><code>Linking to GEOS 3.7.2, GDAL 2.4.2, PROJ 5.2.0</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYZHBseXLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgZmlsdGVyLCBsYWdcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICBpbnRlcnNlY3QsIHNldGRpZmYsIHNldGVxdWFsLCB1bmlvblxuIn0= -->
+<pre><code>
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBvdGhlciBwYWNrYWdlc1xubGlicmFyeShoZXJlKVxuYGBgIn0= -->
-<pre class="r"><code># other packages
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBzcGF0aWFsIHBhY2thZ2VzXG5saWJyYXJ5KHRpZ3JpcylcbmxpYnJhcnkoc2YpXG5cbiMgb3RoZXIgcGFja2FnZXNcbmxpYnJhcnkoaGVyZSlcbmBgYCJ9 -->
+<pre class="r"><code># spatial packages
+library(tigris)
+library(sf)
+
+# other packages
 library(here)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -1793,9 +1806,145 @@ library(here)</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhdGVzIDwtIHN0YXRlcyhjYiA9IFRSVUUsIGNsYXNzID0gXCJzZlwiKVxuXG5zdGF0ZXMgJT4lXG4gIGZpbHRlcihhcy5udW1lcmljKEdFT0lEKSA8PSA1NikgJT4lXG4gIGZpbHRlcihOQU1FICE9IFwiQWxhc2thXCIpICU+JVxuICBmaWx0ZXIoTkFNRSAhPSBcIkhhd2FpaVwiKSAlPiVcbiAgc2VsZWN0KFNUVVNQUywgTkFNRSkgLT4gc3RhdGVzXG5cbnN0YXRlcyA8LSBzdF90cmFuc2Zvcm0oc3RhdGVzLCBjcnMgPSAxMDIwMDMpXG5cbnN0X3dyaXRlKHN0YXRlcywgaGVyZShcImRhdGFcIiwgXCJzcGF0aWFsXCIsIFwiVVNfQk9VTkRBUllfU3RhdGVzXCIsIFwiVVNfQk9VTkRBUllfU3RhdGVzLnNocFwiKSwgZGVsZXRlX2RzbiA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>states &lt;- states(cb = TRUE, class = &quot;sf&quot;)
+
+states %&gt;%
+  filter(as.numeric(GEOID) &lt;= 56) %&gt;%
+  filter(NAME != &quot;Alaska&quot;) %&gt;%
+  filter(NAME != &quot;Hawaii&quot;) %&gt;%
+  select(STUSPS, NAME) -&gt; states
+
+states &lt;- st_transform(states, crs = 102003)
+
+st_write(states, here(&quot;data&quot;, &quot;spatial&quot;, &quot;US_BOUNDARY_States&quot;, &quot;US_BOUNDARY_States.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvZGF0YS9zcGF0aWFsL1VTX0JPVU5EQVJZX1N0YXRlcy9VU19CT1VOREFSWV9TdGF0ZXMuc2hwJyB1c2luZyBkcml2ZXIgYEVTUkkgU2hhcGVmaWxlJ1xuV3JpdGluZyBsYXllciBgVVNfQk9VTkRBUllfU3RhdGVzJyB0byBkYXRhIHNvdXJjZSBgL1VzZXJzL3ByZW5lcmNnL0dpdEh1Yi9QcmVuZXJMYWIvZ2VvY29kaW5nLXBhcGVyL2RhdGEvc3BhdGlhbC9VU19CT1VOREFSWV9TdGF0ZXMvVVNfQk9VTkRBUllfU3RhdGVzLnNocCcgdXNpbmcgZHJpdmVyIGBFU1JJIFNoYXBlZmlsZSdcbldyaXRpbmcgNDkgZmVhdHVyZXMgd2l0aCAyIGZpZWxkcyBhbmQgZ2VvbWV0cnkgdHlwZSBNdWx0aSBQb2x5Z29uLlxuIn0= -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/US_BOUNDARY_States/US_BOUNDARY_States.shp' using driver `ESRI Shapefile'
+Writing layer `US_BOUNDARY_States' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/US_BOUNDARY_States/US_BOUNDARY_States.shp' using driver `ESRI Shapefile'
+Writing 49 features with 2 fields and geometry type Multi Polygon.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGxhY2VzIDwtIHBsYWNlcyhzdGF0ZSA9IDI5LCBjYiA9IFRSVUUsIGNsYXNzID0gXCJzZlwiKSAlPiVcbiAgc2VsZWN0KE5BTUUpXG5cbnBsYWNlcyA8LSBzdF90cmFuc2Zvcm0ocGxhY2VzLCBjcnMgPSAxMDIwMDMpXG5cbnN0X3dyaXRlKHBsYWNlcywgaGVyZShcImRhdGFcIiwgXCJzcGF0aWFsXCIsIFwiTU9fQk9VTkRBUllfUGxhY2VzXCIsIFwiTU9fQk9VTkRBUllfUGxhY2VzLnNocFwiKSwgZGVsZXRlX2RzbiA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>places &lt;- places(state = 29, cb = TRUE, class = &quot;sf&quot;) %&gt;%
+  select(NAME)
+
+places &lt;- st_transform(places, crs = 102003)
+
+st_write(places, here(&quot;data&quot;, &quot;spatial&quot;, &quot;MO_BOUNDARY_Places&quot;, &quot;MO_BOUNDARY_Places.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvZGF0YS9zcGF0aWFsL01PX0JPVU5EQVJZX1BsYWNlcy9NT19CT1VOREFSWV9QbGFjZXMuc2hwJyB1c2luZyBkcml2ZXIgYEVTUkkgU2hhcGVmaWxlJ1xuV3JpdGluZyBsYXllciBgTU9fQk9VTkRBUllfUGxhY2VzJyB0byBkYXRhIHNvdXJjZSBgL1VzZXJzL3ByZW5lcmNnL0dpdEh1Yi9QcmVuZXJMYWIvZ2VvY29kaW5nLXBhcGVyL2RhdGEvc3BhdGlhbC9NT19CT1VOREFSWV9QbGFjZXMvTU9fQk9VTkRBUllfUGxhY2VzLnNocCcgdXNpbmcgZHJpdmVyIGBFU1JJIFNoYXBlZmlsZSdcbldyaXRpbmcgMTAzNCBmZWF0dXJlcyB3aXRoIDEgZmllbGRzIGFuZCBnZW9tZXRyeSB0eXBlIE11bHRpIFBvbHlnb24uXG4ifQ== -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/MO_BOUNDARY_Places/MO_BOUNDARY_Places.shp' using driver `ESRI Shapefile'
+Writing layer `MO_BOUNDARY_Places' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/MO_BOUNDARY_Places/MO_BOUNDARY_Places.shp' using driver `ESRI Shapefile'
+Writing 1034 features with 1 fields and geometry type Multi Polygon.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucm9hZHMgPC0gcHJpbWFyeV9yb2FkcyhjbGFzcyA9IFwic2ZcIikgJT4lXG4gIGZpbHRlcihSVFRZUCA9PSBcIklcIikgJT4lXG4gIGZpbHRlcihGVUxMTkFNRSAlaW4lIGMoXCJJLSA0NFwiLCBcIkktIDY0XCIsIFwiSS0gNzBcIiwgXCJJLSA1NVwiLCBcIkktIDE3MFwiLCBcIkktIDI3MFwiKSlcblxucm9hZHMgPC0gc3RfdHJhbnNmb3JtKHJvYWRzLCBjcnMgPSAxMDIwMDMpXG5cbnN0X3dyaXRlKHJvYWRzLCBoZXJlKFwiZGF0YVwiLCBcInNwYXRpYWxcIiwgXCJVU19UUkFOU19IaWdod2F5c1wiLCBcIlVTX1RSQU5TX0hpZ2h3YXlzLnNocFwiKSwgZGVsZXRlX2RzbiA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>roads &lt;- primary_roads(class = &quot;sf&quot;) %&gt;%
+  filter(RTTYP == &quot;I&quot;) %&gt;%
+  filter(FULLNAME %in% c(&quot;I- 44&quot;, &quot;I- 64&quot;, &quot;I- 70&quot;, &quot;I- 55&quot;, &quot;I- 170&quot;, &quot;I- 270&quot;))
+
+roads &lt;- st_transform(roads, crs = 102003)
+
+st_write(roads, here(&quot;data&quot;, &quot;spatial&quot;, &quot;US_TRANS_Highways&quot;, &quot;US_TRANS_Highways.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR0RBTCBFcnJvciAxOiAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvZGF0YS9zcGF0aWFsL1VTX1RSQU5TX0hpZ2h3YXlzL1VTX1RSQU5TX0hpZ2h3YXlzLnNocCBkb2VzIG5vdCBhcHBlYXIgdG8gYmUgYSBmaWxlIG9yIGRpcmVjdG9yeS5cbiJ9 -->
+<pre><code>GDAL Error 1: /Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/US_TRANS_Highways/US_TRANS_Highways.shp does not appear to be a file or directory.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvZGF0YS9zcGF0aWFsL1VTX1RSQU5TX0hpZ2h3YXlzL1VTX1RSQU5TX0hpZ2h3YXlzLnNocCcgZmFpbGVkXG5Xcml0aW5nIGxheWVyIGBVU19UUkFOU19IaWdod2F5cycgdG8gZGF0YSBzb3VyY2UgYC9Vc2Vycy9wcmVuZXJjZy9HaXRIdWIvUHJlbmVyTGFiL2dlb2NvZGluZy1wYXBlci9kYXRhL3NwYXRpYWwvVVNfVFJBTlNfSGlnaHdheXMvVVNfVFJBTlNfSGlnaHdheXMuc2hwJyB1c2luZyBkcml2ZXIgYEVTUkkgU2hhcGVmaWxlJ1xuV3JpdGluZyA1OTYgZmVhdHVyZXMgd2l0aCA0IGZpZWxkcyBhbmQgZ2VvbWV0cnkgdHlwZSBMaW5lIFN0cmluZy5cbiJ9 -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/US_TRANS_Highways/US_TRANS_Highways.shp' failed
+Writing layer `US_TRANS_Highways' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/data/spatial/US_TRANS_Highways/US_TRANS_Highways.shp' using driver `ESRI Shapefile'
+Writing 596 features with 4 fields and geometry type Line String.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlnX3NwcmVhZCA8LSBzdF90cmFuc2Zvcm0oYmlnX3NwcmVhZCwgY3JzID0gMTAyMDAzKVxuYmlnX3NwcmVhZF90cnV0aCA8LSBmaWx0ZXIoYmlnX3NwcmVhZCwgbmFtZSA9PSBcInRydXRoXCIpXG4gIFxuc3Rfd3JpdGUoYmlnX3NwcmVhZCwgaGVyZShcInJlc3VsdHNcIiwgXCJzcGF0aWFsXCIsIFwiYmlnX3NwcmVhZFwiLCBcImJpZ19zcHJlYWQuc2hwXCIpLCBkZWxldGVfZHNuID0gVFJVRSlcbmBgYCJ9 -->
+<pre class="r"><code>big_spread &lt;- st_transform(big_spread, crs = 102003)
+big_spread_truth &lt;- filter(big_spread, name == &quot;truth&quot;)
+  
+st_write(big_spread, here(&quot;results&quot;, &quot;spatial&quot;, &quot;big_spread&quot;, &quot;big_spread.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL2JpZ19zcHJlYWQvYmlnX3NwcmVhZC5zaHAnIHVzaW5nIGRyaXZlciBgRVNSSSBTaGFwZWZpbGUnXG5Xcml0aW5nIGxheWVyIGBiaWdfc3ByZWFkJyB0byBkYXRhIHNvdXJjZSBgL1VzZXJzL3ByZW5lcmNnL0dpdEh1Yi9QcmVuZXJMYWIvZ2VvY29kaW5nLXBhcGVyL3Jlc3VsdHMvc3BhdGlhbC9iaWdfc3ByZWFkL2JpZ19zcHJlYWQuc2hwJyB1c2luZyBkcml2ZXIgYEVTUkkgU2hhcGVmaWxlJ1xuV3JpdGluZyAxNSBmZWF0dXJlcyB3aXRoIDEgZmllbGRzIGFuZCBnZW9tZXRyeSB0eXBlIFBvaW50LlxuIn0= -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/big_spread/big_spread.shp' using driver `ESRI Shapefile'
+Writing layer `big_spread' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/big_spread/big_spread.shp' using driver `ESRI Shapefile'
+Writing 15 features with 1 fields and geometry type Point.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3Rfd3JpdGUoYmlnX3NwcmVhZF90cnV0aCwgaGVyZShcInJlc3VsdHNcIiwgXCJzcGF0aWFsXCIsIFwiYmlnX3NwcmVhZFwiLCBcImJpZ19zcHJlYWRfdHJ1dGguc2hwXCIpLCBkZWxldGVfZHNuID0gVFJVRSlcbmBgYCJ9 -->
+<pre class="r"><code>st_write(big_spread_truth, here(&quot;results&quot;, &quot;spatial&quot;, &quot;big_spread&quot;, &quot;big_spread_truth.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR0RBTCBFcnJvciAxOiAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL2JpZ19zcHJlYWQvYmlnX3NwcmVhZF90cnV0aC5zaHAgZG9lcyBub3QgYXBwZWFyIHRvIGJlIGEgZmlsZSBvciBkaXJlY3RvcnkuXG4ifQ== -->
+<pre><code>GDAL Error 1: /Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/big_spread/big_spread_truth.shp does not appear to be a file or directory.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL2JpZ19zcHJlYWQvYmlnX3NwcmVhZF90cnV0aC5zaHAnIGZhaWxlZFxuV3JpdGluZyBsYXllciBgYmlnX3NwcmVhZF90cnV0aCcgdG8gZGF0YSBzb3VyY2UgYC9Vc2Vycy9wcmVuZXJjZy9HaXRIdWIvUHJlbmVyTGFiL2dlb2NvZGluZy1wYXBlci9yZXN1bHRzL3NwYXRpYWwvYmlnX3NwcmVhZC9iaWdfc3ByZWFkX3RydXRoLnNocCcgdXNpbmcgZHJpdmVyIGBFU1JJIFNoYXBlZmlsZSdcbldyaXRpbmcgMSBmZWF0dXJlcyB3aXRoIDEgZmllbGRzIGFuZCBnZW9tZXRyeSB0eXBlIFBvaW50LlxuIn0= -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/big_spread/big_spread_truth.shp' failed
+Writing layer `big_spread_truth' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/big_spread/big_spread_truth.shp' using driver `ESRI Shapefile'
+Writing 1 features with 1 fields and geometry type Point.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVkX3NwcmVhZCA8LSBzdF90cmFuc2Zvcm0obWVkX3NwcmVhZCwgY3JzID0gMTAyMDAzKVxubWVkX3NwcmVhZF90cnV0aCA8LSBmaWx0ZXIobWVkX3NwcmVhZCwgbmFtZSA9PSBcInRydXRoXCIpXG4gIFxuc3Rfd3JpdGUobWVkX3NwcmVhZCwgaGVyZShcInJlc3VsdHNcIiwgXCJzcGF0aWFsXCIsIFwibWVkX3NwcmVhZFwiLCBcIm1lZF9zcHJlYWQuc2hwXCIpLCBkZWxldGVfZHNuID0gVFJVRSlcbmBgYCJ9 -->
+<pre class="r"><code>med_spread &lt;- st_transform(med_spread, crs = 102003)
+med_spread_truth &lt;- filter(med_spread, name == &quot;truth&quot;)
+  
+st_write(med_spread, here(&quot;results&quot;, &quot;spatial&quot;, &quot;med_spread&quot;, &quot;med_spread.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL21lZF9zcHJlYWQvbWVkX3NwcmVhZC5zaHAnIHVzaW5nIGRyaXZlciBgRVNSSSBTaGFwZWZpbGUnXG5Xcml0aW5nIGxheWVyIGBtZWRfc3ByZWFkJyB0byBkYXRhIHNvdXJjZSBgL1VzZXJzL3ByZW5lcmNnL0dpdEh1Yi9QcmVuZXJMYWIvZ2VvY29kaW5nLXBhcGVyL3Jlc3VsdHMvc3BhdGlhbC9tZWRfc3ByZWFkL21lZF9zcHJlYWQuc2hwJyB1c2luZyBkcml2ZXIgYEVTUkkgU2hhcGVmaWxlJ1xuV3JpdGluZyAxNSBmZWF0dXJlcyB3aXRoIDEgZmllbGRzIGFuZCBnZW9tZXRyeSB0eXBlIFBvaW50LlxuIn0= -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/med_spread/med_spread.shp' using driver `ESRI Shapefile'
+Writing layer `med_spread' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/med_spread/med_spread.shp' using driver `ESRI Shapefile'
+Writing 15 features with 1 fields and geometry type Point.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3Rfd3JpdGUobWVkX3NwcmVhZF90cnV0aCwgaGVyZShcInJlc3VsdHNcIiwgXCJzcGF0aWFsXCIsIFwibWVkX3NwcmVhZFwiLCBcIm1lZF9zcHJlYWRfdHJ1dGguc2hwXCIpLCBkZWxldGVfZHNuID0gVFJVRSlcbmBgYCJ9 -->
+<pre class="r"><code>st_write(med_spread_truth, here(&quot;results&quot;, &quot;spatial&quot;, &quot;med_spread&quot;, &quot;med_spread_truth.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR0RBTCBFcnJvciAxOiAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL21lZF9zcHJlYWQvbWVkX3NwcmVhZF90cnV0aC5zaHAgZG9lcyBub3QgYXBwZWFyIHRvIGJlIGEgZmlsZSBvciBkaXJlY3RvcnkuXG4ifQ== -->
+<pre><code>GDAL Error 1: /Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/med_spread/med_spread_truth.shp does not appear to be a file or directory.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL21lZF9zcHJlYWQvbWVkX3NwcmVhZF90cnV0aC5zaHAnIGZhaWxlZFxuV3JpdGluZyBsYXllciBgbWVkX3NwcmVhZF90cnV0aCcgdG8gZGF0YSBzb3VyY2UgYC9Vc2Vycy9wcmVuZXJjZy9HaXRIdWIvUHJlbmVyTGFiL2dlb2NvZGluZy1wYXBlci9yZXN1bHRzL3NwYXRpYWwvbWVkX3NwcmVhZC9tZWRfc3ByZWFkX3RydXRoLnNocCcgdXNpbmcgZHJpdmVyIGBFU1JJIFNoYXBlZmlsZSdcbldyaXRpbmcgMSBmZWF0dXJlcyB3aXRoIDEgZmllbGRzIGFuZCBnZW9tZXRyeSB0eXBlIFBvaW50LlxuIn0= -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/med_spread/med_spread_truth.shp' failed
+Writing layer `med_spread_truth' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/med_spread/med_spread_truth.shp' using driver `ESRI Shapefile'
+Writing 1 features with 1 fields and geometry type Point.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVhc3Rfc3ByZWFkIDwtIHN0X3RyYW5zZm9ybShsZWFzdF9zcHJlYWQsIGNycyA9IDEwMjAwMylcbmxlYXN0X3NwcmVhZF90cnV0aCA8LSBmaWx0ZXIobGVhc3Rfc3ByZWFkLCBuYW1lID09IFwidHJ1dGhcIilcbiAgXG5zdF93cml0ZShsZWFzdF9zcHJlYWQsIGhlcmUoXCJyZXN1bHRzXCIsIFwic3BhdGlhbFwiLCBcImxlYXN0X3NwcmVhZFwiLCBcImxlYXN0X3NwcmVhZC5zaHBcIiksIGRlbGV0ZV9kc24gPSBUUlVFKVxuYGBgIn0= -->
+<pre class="r"><code>least_spread &lt;- st_transform(least_spread, crs = 102003)
+least_spread_truth &lt;- filter(least_spread, name == &quot;truth&quot;)
+  
+st_write(least_spread, here(&quot;results&quot;, &quot;spatial&quot;, &quot;least_spread&quot;, &quot;least_spread.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL2xlYXN0X3NwcmVhZC9sZWFzdF9zcHJlYWQuc2hwJyB1c2luZyBkcml2ZXIgYEVTUkkgU2hhcGVmaWxlJ1xuV3JpdGluZyBsYXllciBgbGVhc3Rfc3ByZWFkJyB0byBkYXRhIHNvdXJjZSBgL1VzZXJzL3ByZW5lcmNnL0dpdEh1Yi9QcmVuZXJMYWIvZ2VvY29kaW5nLXBhcGVyL3Jlc3VsdHMvc3BhdGlhbC9sZWFzdF9zcHJlYWQvbGVhc3Rfc3ByZWFkLnNocCcgdXNpbmcgZHJpdmVyIGBFU1JJIFNoYXBlZmlsZSdcbldyaXRpbmcgMTUgZmVhdHVyZXMgd2l0aCAxIGZpZWxkcyBhbmQgZ2VvbWV0cnkgdHlwZSBQb2ludC5cbiJ9 -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/least_spread/least_spread.shp' using driver `ESRI Shapefile'
+Writing layer `least_spread' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/least_spread/least_spread.shp' using driver `ESRI Shapefile'
+Writing 15 features with 1 fields and geometry type Point.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3Rfd3JpdGUobGVhc3Rfc3ByZWFkX3RydXRoLCBoZXJlKFwicmVzdWx0c1wiLCBcInNwYXRpYWxcIiwgXCJsZWFzdF9zcHJlYWRcIiwgXCJsZWFzdF9zcHJlYWRfdHJ1dGguc2hwXCIpLCBkZWxldGVfZHNuID0gVFJVRSlcbmBgYCJ9 -->
+<pre class="r"><code>st_write(least_spread_truth, here(&quot;results&quot;, &quot;spatial&quot;, &quot;least_spread&quot;, &quot;least_spread_truth.shp&quot;), delete_dsn = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR0RBTCBFcnJvciAxOiAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL2xlYXN0X3NwcmVhZC9sZWFzdF9zcHJlYWRfdHJ1dGguc2hwIGRvZXMgbm90IGFwcGVhciB0byBiZSBhIGZpbGUgb3IgZGlyZWN0b3J5LlxuIn0= -->
+<pre><code>GDAL Error 1: /Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/least_spread/least_spread_truth.shp does not appear to be a file or directory.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGVsZXRpbmcgc291cmNlIGAvVXNlcnMvcHJlbmVyY2cvR2l0SHViL1ByZW5lckxhYi9nZW9jb2RpbmctcGFwZXIvcmVzdWx0cy9zcGF0aWFsL2xlYXN0X3NwcmVhZC9sZWFzdF9zcHJlYWRfdHJ1dGguc2hwJyBmYWlsZWRcbldyaXRpbmcgbGF5ZXIgYGxlYXN0X3NwcmVhZF90cnV0aCcgdG8gZGF0YSBzb3VyY2UgYC9Vc2Vycy9wcmVuZXJjZy9HaXRIdWIvUHJlbmVyTGFiL2dlb2NvZGluZy1wYXBlci9yZXN1bHRzL3NwYXRpYWwvbGVhc3Rfc3ByZWFkL2xlYXN0X3NwcmVhZF90cnV0aC5zaHAnIHVzaW5nIGRyaXZlciBgRVNSSSBTaGFwZWZpbGUnXG5Xcml0aW5nIDEgZmVhdHVyZXMgd2l0aCAxIGZpZWxkcyBhbmQgZ2VvbWV0cnkgdHlwZSBQb2ludC5cbiJ9 -->
+<pre><code>Deleting source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/least_spread/least_spread_truth.shp' failed
+Writing layer `least_spread_truth' to data source `/Users/prenercg/GitHub/PrenerLab/geocoding-paper/results/spatial/least_spread/least_spread_truth.shp' using driver `ESRI Shapefile'
+Writing 1 features with 1 fields and geometry type Point.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTWFwIFNwcmVhZHMiCmF1dGhvcjogIkJyYW5zb24gRm94IgpkYXRlOiAnKGByIGZvcm1hdChTeXMudGltZSgpLCAiJUIgJWQsICVZIilgKScKb3V0cHV0OiAKICBnaXRodWJfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyMgSW50cm9kdWN0aW9uCgojIyBEZXBlbmRlbmNpZXMKVGhlc2UgcGFja2FnZXMgYXJlIHJlcXVpcmVkIGZvciB0aGUgYW5hbHlzaXMgaW4gdGhpcyBub3RlYm9vay4KCmBgYHtyIGRlcGVuZGVuY2llc30KIyBzcGF0aWFsIHBhY2thZ2VzCmxpYnJhcnkoc2YpCgojIG90aGVyIHBhY2thZ2VzCmxpYnJhcnkoaGVyZSkKYGBgCgoKIyMgTG9hZCBEYXRhCk5leHQsIHdlJ2xsIGxvYWQgdGhlIGRhdGEgdG8gYmUgZ2VvY29kZWQ6CgpgYGB7ciBsb2FkLWRhdGF9CmxvYWQoaGVyZSgicmVzdWx0cyIsICJzcHJlYWQucmRhIikpCmBgYAoKYGBge3J9CmJpZ19zcHJlYWQgJT4lCiAgc2xpY2Uod2hpY2gocm93X251bWJlcigpICUlIDMgPT0gMSkpIC0+IGJpZ19zcHJlYWQKYGBgCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTWFwIFNwcmVhZHMiCmF1dGhvcjogIkJyYW5zb24gRm94IgpkYXRlOiAnKGByIGZvcm1hdChTeXMudGltZSgpLCAiJUIgJWQsICVZIilgKScKb3V0cHV0OiAKICBnaXRodWJfZG9jdW1lbnQ6IGRlZmF1bHQKICBodG1sX25vdGVib29rOiBkZWZhdWx0Ci0tLQoKIyMgSW50cm9kdWN0aW9uCgojIyBEZXBlbmRlbmNpZXMKVGhlc2UgcGFja2FnZXMgYXJlIHJlcXVpcmVkIGZvciB0aGUgYW5hbHlzaXMgaW4gdGhpcyBub3RlYm9vay4KCmBgYHtyIGRlcGVuZGVuY2llc30KIyB0aWR5dmVyc2UgcGFja2FnZXMKbGlicmFyeShkcGx5cikKCiMgc3BhdGlhbCBwYWNrYWdlcwpsaWJyYXJ5KHRpZ3JpcykKbGlicmFyeShzZikKCiMgb3RoZXIgcGFja2FnZXMKbGlicmFyeShoZXJlKQpgYGAKCgojIyBMb2FkIERhdGEKTmV4dCwgd2UnbGwgbG9hZCB0aGUgZGF0YSB0byBiZSBnZW9jb2RlZDoKCmBgYHtyIGxvYWQtZGF0YX0KbG9hZChoZXJlKCJyZXN1bHRzIiwgInNwcmVhZC5yZGEiKSkKYGBgCgpgYGB7cn0KYmlnX3NwcmVhZCAlPiUKICBzbGljZSh3aGljaChyb3dfbnVtYmVyKCkgJSUgMyA9PSAxKSkgLT4gYmlnX3NwcmVhZApgYGAKCmBgYHtyfQpzdGF0ZXMgPC0gc3RhdGVzKGNiID0gVFJVRSwgY2xhc3MgPSAic2YiKQoKc3RhdGVzICU+JQogIGZpbHRlcihhcy5udW1lcmljKEdFT0lEKSA8PSA1NikgJT4lCiAgZmlsdGVyKE5BTUUgIT0gIkFsYXNrYSIpICU+JQogIGZpbHRlcihOQU1FICE9ICJIYXdhaWkiKSAlPiUKICBzZWxlY3QoU1RVU1BTLCBOQU1FKSAtPiBzdGF0ZXMKCnN0YXRlcyA8LSBzdF90cmFuc2Zvcm0oc3RhdGVzLCBjcnMgPSAxMDIwMDMpCgpzdF93cml0ZShzdGF0ZXMsIGhlcmUoImRhdGEiLCAic3BhdGlhbCIsICJVU19CT1VOREFSWV9TdGF0ZXMiLCAiVVNfQk9VTkRBUllfU3RhdGVzLnNocCIpLCBkZWxldGVfZHNuID0gVFJVRSkKYGBgCgpgYGB7cn0KcGxhY2VzIDwtIHBsYWNlcyhzdGF0ZSA9IDI5LCBjYiA9IFRSVUUsIGNsYXNzID0gInNmIikgJT4lCiAgc2VsZWN0KE5BTUUpCgpwbGFjZXMgPC0gc3RfdHJhbnNmb3JtKHBsYWNlcywgY3JzID0gMTAyMDAzKQoKc3Rfd3JpdGUocGxhY2VzLCBoZXJlKCJkYXRhIiwgInNwYXRpYWwiLCAiTU9fQk9VTkRBUllfUGxhY2VzIiwgIk1PX0JPVU5EQVJZX1BsYWNlcy5zaHAiKSwgZGVsZXRlX2RzbiA9IFRSVUUpCmBgYAoKYGBge3J9CnJvYWRzIDwtIHByaW1hcnlfcm9hZHMoY2xhc3MgPSAic2YiKSAlPiUKICBmaWx0ZXIoUlRUWVAgPT0gIkkiKSAlPiUKICBmaWx0ZXIoRlVMTE5BTUUgJWluJSBjKCJJLSA0NCIsICJJLSA2NCIsICJJLSA3MCIsICJJLSA1NSIsICJJLSAxNzAiLCAiSS0gMjcwIikpCgpyb2FkcyA8LSBzdF90cmFuc2Zvcm0ocm9hZHMsIGNycyA9IDEwMjAwMykKCnN0X3dyaXRlKHJvYWRzLCBoZXJlKCJkYXRhIiwgInNwYXRpYWwiLCAiVVNfVFJBTlNfSGlnaHdheXMiLCAiVVNfVFJBTlNfSGlnaHdheXMuc2hwIiksIGRlbGV0ZV9kc24gPSBUUlVFKQpgYGAKCgpgYGB7cn0KYmlnX3NwcmVhZCA8LSBzdF90cmFuc2Zvcm0oYmlnX3NwcmVhZCwgY3JzID0gMTAyMDAzKQpiaWdfc3ByZWFkX3RydXRoIDwtIGZpbHRlcihiaWdfc3ByZWFkLCBuYW1lID09ICJ0cnV0aCIpCiAgCnN0X3dyaXRlKGJpZ19zcHJlYWQsIGhlcmUoInJlc3VsdHMiLCAic3BhdGlhbCIsICJiaWdfc3ByZWFkIiwgImJpZ19zcHJlYWQuc2hwIiksIGRlbGV0ZV9kc24gPSBUUlVFKQpzdF93cml0ZShiaWdfc3ByZWFkX3RydXRoLCBoZXJlKCJyZXN1bHRzIiwgInNwYXRpYWwiLCAiYmlnX3NwcmVhZCIsICJiaWdfc3ByZWFkX3RydXRoLnNocCIpLCBkZWxldGVfZHNuID0gVFJVRSkKYGBgCgpgYGB7cn0KbWVkX3NwcmVhZCA8LSBzdF90cmFuc2Zvcm0obWVkX3NwcmVhZCwgY3JzID0gMTAyMDAzKQptZWRfc3ByZWFkX3RydXRoIDwtIGZpbHRlcihtZWRfc3ByZWFkLCBuYW1lID09ICJ0cnV0aCIpCiAgCnN0X3dyaXRlKG1lZF9zcHJlYWQsIGhlcmUoInJlc3VsdHMiLCAic3BhdGlhbCIsICJtZWRfc3ByZWFkIiwgIm1lZF9zcHJlYWQuc2hwIiksIGRlbGV0ZV9kc24gPSBUUlVFKQpzdF93cml0ZShtZWRfc3ByZWFkX3RydXRoLCBoZXJlKCJyZXN1bHRzIiwgInNwYXRpYWwiLCAibWVkX3NwcmVhZCIsICJtZWRfc3ByZWFkX3RydXRoLnNocCIpLCBkZWxldGVfZHNuID0gVFJVRSkKYGBgCgpgYGB7cn0KbGVhc3Rfc3ByZWFkIDwtIHN0X3RyYW5zZm9ybShsZWFzdF9zcHJlYWQsIGNycyA9IDEwMjAwMykKbGVhc3Rfc3ByZWFkX3RydXRoIDwtIGZpbHRlcihsZWFzdF9zcHJlYWQsIG5hbWUgPT0gInRydXRoIikKICAKc3Rfd3JpdGUobGVhc3Rfc3ByZWFkLCBoZXJlKCJyZXN1bHRzIiwgInNwYXRpYWwiLCAibGVhc3Rfc3ByZWFkIiwgImxlYXN0X3NwcmVhZC5zaHAiKSwgZGVsZXRlX2RzbiA9IFRSVUUpCnN0X3dyaXRlKGxlYXN0X3NwcmVhZF90cnV0aCwgaGVyZSgicmVzdWx0cyIsICJzcGF0aWFsIiwgImxlYXN0X3NwcmVhZCIsICJsZWFzdF9zcHJlYWRfdHJ1dGguc2hwIiksIGRlbGV0ZV9kc24gPSBUUlVFKQpgYGAK</div>
 
 
 
