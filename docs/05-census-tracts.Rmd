@@ -1,0 +1,118 @@
+---
+title: "Tract-Level Accuracy"
+author: "Branson Fox"
+date: '(`r format(Sys.time(), "%B %d, %Y")`)'
+output: 
+  github_document: default
+  html_notebook: default
+---
+
+## Objective
+This notebooks is used to interpolate our geocoding results to census tracts, a common unit of aggregate spatial analysis. From this, we will evaluate the quality of geocoding as it pertains to analysis at the census tract level.
+
+## Dependencies
+The following packages are necessary to replicate this process.
+```{r dependencies, message=FALSE}
+library(sf)
+library(dplyr)
+library(magrittr)
+library(tigris)
+```
+
+## Load Data
+We'll load our saved geocoding results. We will also filter to points where we have a valid ground truth. We'll also replace NAs with 0s in order to make valid SF objects. These won't match any tracts.
+```{r load data}
+load('../results/all_results.rda')
+all_geocodes %<>% filter(!is.na(truth.lat))
+all_geocodes[is.na(all_geocodes)] <- 0
+```
+
+We must also load the census tracts for our region of interest.
+```{r load tracts}
+tracts <- rbind(
+  tracts(state = 17, class = 'sf'),
+  tracts(state = 29, class = 'sf')
+)
+stl_tracts <- filter(tracts, COUNTYFP == 510)
+tracts %<>% filter(
+    st_touches(., stl_tracts, sparse = FALSE) %>% rowSums() > 0
+  ) %>% st_transform(4326) %>% transmute(GEOID)
+```
+
+
+## Locate Points in Census Tracts
+Now, we must locate each point in the appropriate census tract. We will identify them by the tract they fall within the boundary of.
+```{r}
+# Define Geocoders
+geocoders <- c('truth', 'BingSingle', 'EsriSingle', 'Google', 'HereSingle', 'OpenCage', 'TomTomSingle', 'CensusSingle', 'GeocodioSingle', 'TomTomBatch', 'BingBatch', 'CensusBatch', 'GeocodioBatch', 'EsriBatch', 'HereBatch')
+
+# Initialize a Dataframe to Store Results
+located_df <- data.frame(id = 1:nrow(all_geocodes))
+
+# Iterate Through Geocoders, and Store Tract Match in Dataframe
+for (geocoder in geocoders){
+  # Make an SF Object
+  sf <- st_as_sf(all_geocodes, coords = c(
+      x = paste0(geocoder, '.lon'),
+      y = paste0(geocoder, '.lat')
+    ),
+    crs = 4326)
+  # Calculate Within Predicate
+  within <- st_within(sf, tracts)
+  # Get GEOID If Exists
+  geoid <- lapply(within, function(x){
+    if (length(x) < 1){
+      return('No Match')
+    }else{
+      return(tracts[x, 'GEOID'] %>% st_drop_geometry)
+    }
+  }) %>% unlist %>% unname
+  # Append Tract GEOID
+  located_df[[geocoder]] <- geoid
+  
+}
+```
+
+## Calculate Exact Matches
+We will summarize the number of geocodes that fall within the same tract as the ground truth. We'll operate on the matrix and create a logical matrix
+```{r exact matches}
+exact <- (located_df[,3:16] == located_df[,2]) %>% colSums %>% sort(decreasing = TRUE)
+exact
+```
+
+
+## Calculate Near Matches
+Next, we will calculate points that fall within an adjacent tract as the ground truth. To do this, we will first need to define a list of adjacent tracts.
+```{r calc adjacent}
+# Get Tract Geometry for Ground Truth
+truth_tracts <- left_join(located_df[,1:2], tracts, by = c('truth' = 'GEOID')) %>% st_as_sf()
+
+# Get Adjacent Tracts by Row Number
+adjacent <- vector('list', length = nrow(truth_tracts))
+for (row in 1:nrow(truth_tracts)){
+  adjacent[[row]] <- st_touches(truth_tracts[row,], tracts)
+}
+
+# Get GEOID from Row Number
+adjacent_geoid <- lapply(adjacent, function(x){
+  sapply(x, function(y){
+    tracts[y, 'GEOID'] %>% st_drop_geometry()
+  }) 
+}) %>% unname
+
+# Append to Data.frame
+located_df[['adjacent']] <- adjacent_geoid
+
+# Iterate and Append to Data Frame with Results
+near_matches <- data.frame(matrix(ncol = 14))
+names(near_matches) <- geocoders[2:15]
+
+for (row in 1:nrow(located_df)){
+  near_matches %<>% rbind(located_df[row, 3:16] %in% located_df[row, 'adjacent'][[1]]$GEOID)
+}
+# Remove Blank First Row and Calculate Column Sums
+near_matches <- near_matches[2:1517,]
+near_matches %<>% colSums
+near_matches
+```
+

@@ -132,7 +132,7 @@ save(HERE_Batch, HERE_Batch_Time, file = '../results/HERE_Batch.rda')
 ### Reload Results
 As to not re-geocode, we can reload the results
 ```{r}
-for(i in list.files('../results')){
+for(i in list.files('../results', '*.rda')){
   load(paste0('../results/', i))
 }
 ```
@@ -202,6 +202,8 @@ all_geocodes %<>%
       transmute(HereBatch.lat = displayLatitude,
                 HereBatch.lon = displayLongitude)
     )
+# Save this All Geocoder Dataframe
+save(all_geocodes, file = '../results/all_results.rda')
 ```
 
 ## Compare Timing
