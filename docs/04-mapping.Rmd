@@ -94,3 +94,6 @@ least_spread_truth <- filter(least_spread, name == "truth")
 st_write(least_spread, here("results", "spatial", "least_spread", "least_spread.shp"), delete_dsn = TRUE)
 st_write(least_spread_truth, here("results", "spatial", "least_spread", "least_spread_truth.shp"), delete_dsn = TRUE)
 ```
+
+
+
