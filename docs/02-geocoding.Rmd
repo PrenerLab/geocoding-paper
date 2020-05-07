@@ -387,3 +387,33 @@ save(least_spread, med_spread, big_spread, file = '../results/spread.rda')
 
 ```
 
+### Calculate the Raw Differences in Distance
+We will take the `all_geocodes` object and compute distances relative to the ground truth, and then return and save a tidy object.
+```{r}
+load('../results/all_results.rda')
+geocoders <- c('BingSingle', 'EsriSingle', 'Google', 'HereSingle', 'OpenCage', 'TomTomSingle', 'CensusSingle', 'GeocodioSingle', 'TomTomBatch', 'BingBatch', 'CensusBatch', 'GeocodioBatch', 'EsriBatch', 'HereBatch')
+
+all_distances <- data.frame(stringsAsFactors = FALSE, address = all_geocodes$address)
+
+for (geocoder in geocoders){
+  # Get Distance for Each Individual Point
+  distances <- vector('numeric', nrow(all_geocodes))
+  for (i in seq(from = 1, to = nrow(all_geocodes))) {
+      Imap::gdist(
+      lon.1 = all_geocodes$truth.lon[i],
+      lat.1 = all_geocodes$truth.lat[i],
+      lon.2 = all_geocodes[[paste0(geocoder, '.lon')]][i],
+      lat.2 = all_geocodes[[paste0(geocoder, '.lat')]][i],
+      units = 'm'
+      ) -> distances[i]
+  }
+  # Store in Respective Geocoder Column
+  all_distances[[geocoder]] <- distances
+}
+
+# Filter all_distances for where there was a valid ground truth
+all_distances = all_distances[which(!is.na(all_geocodes$truth.lat)),]
+save(all_distances, file = '../results/all_distances.rda')
+```
+
+
