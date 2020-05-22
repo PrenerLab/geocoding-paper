@@ -17,6 +17,8 @@ library(sf)
 library(dplyr)
 library(magrittr)
 library(tigris)
+library(tidycensus)
+library(areal)
 ```
 
 ## Load Data
@@ -83,7 +85,7 @@ exact
 
 ## Calculate Near Matches
 Next, we will calculate points that fall within an adjacent tract as the ground truth. To do this, we will first need to define a list of adjacent tracts.
-```{r calc adjacent}
+```{r calc adjacent, message=FALSE}
 # Get Tract Geometry for Ground Truth
 truth_tracts <- left_join(located_df[,1:2], tracts, by = c('truth' = 'GEOID')) %>% st_as_sf()
 
@@ -114,5 +116,50 @@ for (row in 1:nrow(located_df)){
 near_matches <- near_matches[2:1517,]
 near_matches %<>% colSums
 near_matches
+```
+
+## Create Shapefiles
+In order to conduct a spatial analysis, we must create shapefiles to import into PySal (See the Jupyter Notebooks for the actual analyis)
+
+```{r}
+# Get Census Co-Variates
+vars <- c(
+  'B02001_001', # Race Total
+  'B02001_002', # Race White
+  'B19049_001', # Median Household Income (2018 Inflation Adjusted)
+  'B17020_001', # Total (Poverty) Population
+  'B17020_002', # In Poverty
+  'B25003_001', # Total (Tenure) Units
+  'B25003_002'  # Owner Occupied
+)
+demog <- get_acs('tract', vars, year = 2018, output = 'wide', state = 29, county = 510, geometry = TRUE) %>%
+  transmute(
+    non_wht = 1 - B02001_002E / B02001_001E,
+    med_inc = B19049_001E,
+    poverty = B17020_002E / B17020_001E,
+    homeown = B25003_002E / B25003_001E,
+  ) %>%
+  st_transform(102696)
+
+# Then we'll create a process for appending counts of Homicide, and saving shapefiles, and do this for every geocoder including the ground truth
+hex <- ar_tessellate(demog, shape = 'hexagon') %>% mutate(tid = row_number())
+
+for (geocoder in geocoders){
+  # Extract the Points for the Geocoder and Make an SF Object
+  cols <- c(paste0(geocoder, '.lat'), paste0(geocoder, '.lon'))
+  sf <- st_as_sf(all_geocodes[,cols], coords = c(x = cols[2], y = cols[1]), crs = 4326) %>% st_transform(102696)
+  # Interpolate these Points to Tracts
+  agg <- mutate(demog,
+          homicides = st_intersects(demog, sf, sparse = FALSE) %>% rowSums(),
+          sid = row_number()
+        )
+  
+  # Interpolate, Using AWI to Hexagons
+  awi <- aw_interpolate(hex, tid, agg, sid, 'sum', 'sf', extensive = c('homicides', 'med_inc'), intensive = c('non_wht', 'poverty', 'homeown'))
+  
+  # Save A Shapefile
+  st_write(awi, paste0('../data/shapes/', geocoder, '.shp'))
+}
+
 ```
 

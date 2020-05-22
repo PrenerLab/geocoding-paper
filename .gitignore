@@ -81,3 +81,7 @@ vignettes/*.pdf
 
 # Secrets
 creds.yml
+
+# Jupyter
+.ipynb_checkpoints
+
