@@ -138,8 +138,9 @@ demog <- get_acs('tract', vars, year = 2018, output = 'wide', state = 29, county
     med_inc = B19049_001E,
     poverty = B17020_002E / B17020_001E,
     homeown = B25003_002E / B25003_001E,
+    pop = B02001_001E
   ) %>%
-  st_transform(102696)
+  st_transform(26915)
 
 # Then we'll create a process for appending counts of Homicide, and saving shapefiles, and do this for every geocoder including the ground truth
 hex <- ar_tessellate(demog, shape = 'hexagon') %>% mutate(tid = row_number())
@@ -147,10 +148,10 @@ hex <- ar_tessellate(demog, shape = 'hexagon') %>% mutate(tid = row_number())
 for (geocoder in geocoders){
   # Extract the Points for the Geocoder and Make an SF Object
   cols <- c(paste0(geocoder, '.lat'), paste0(geocoder, '.lon'))
-  sf <- st_as_sf(all_geocodes[,cols], coords = c(x = cols[2], y = cols[1]), crs = 4326) %>% st_transform(102696)
+  sf <- st_as_sf(all_geocodes[,cols], coords = c(x = cols[2], y = cols[1]), crs = 4326) %>% st_transform(26915)
   # Interpolate these Points to Tracts
   agg <- mutate(demog,
-          homicides = st_intersects(demog, sf, sparse = FALSE) %>% rowSums(),
+          homicides = st_intersects(demog, sf, sparse = FALSE) %>% rowSums() / pop * 1000,
           sid = row_number()
         )
   
