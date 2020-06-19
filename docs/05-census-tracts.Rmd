@@ -151,7 +151,7 @@ for (geocoder in geocoders){
   sf <- st_as_sf(all_geocodes[,cols], coords = c(x = cols[2], y = cols[1]), crs = 4326) %>% st_transform(26915)
   # Interpolate these Points to Tracts
   agg <- mutate(demog,
-          homicides = st_intersects(demog, sf, sparse = FALSE) %>% rowSums() / pop,
+          homicides = st_intersects(demog, sf, sparse = FALSE) %>% rowSums() / pop * 1000,
           sid = row_number()
         )
   
