@@ -416,4 +416,15 @@ all_distances = all_distances[which(!is.na(all_geocodes$truth.lat)),]
 save(all_distances, file = '../results/all_distances.rda')
 ```
 
+### Compute Supplementary Statistics for
+Upon review, it was recognized that RMSE alone is an insufficient measure of accuracy. So in addition, we compute percentiles [median (50), 75, 90, max (100)] for distances of each geocoder.
+
+```{r}
+load('../results/all_distances.rda')
+dist_ntiles <- apply(all_distances[,2:15], 2, function(result){
+  quantile(result, na.rm = TRUE, probs = c(.5, .75, .9, 1)) %>% round(1)
+})
+print(dist_ntiles)
+write.csv(dist_ntiles, file = '../results/ntile_distances.csv')
+```
 
